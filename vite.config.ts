@@ -1,7 +1,8 @@
 import { defineConfig } from 'vite';
+import { viteSingleFile } from 'vite-plugin-singlefile';
 
 export default defineConfig({
-  base: process.env.VITE_BASE_PATH ?? './',
+  plugins: [viteSingleFile()],
   build: {
     outDir: 'dist',
     target: 'es2022',
