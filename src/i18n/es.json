@@ -257,5 +257,22 @@
     "dragHandle": "Arrastrar para reordenar o mover",
     "primaryNav": "Navegación principal",
     "mobileNav": "Barra de navegación inferior"
+  },
+  "worlds": {
+    "title": "Gestor de Mundos",
+    "subtitle": "Cambia entre mundos con un clic, crea nuevos universos o importa archivos completos.",
+    "create": "Nuevo Mundo",
+    "active": "Activo",
+    "activate": "Activar Mundo",
+    "openDashboard": "Abrir Panel",
+    "confirmDelete": "¿Estás seguro de eliminar el mundo \"{{name}}\"? Esta acción no se puede deshacer.",
+    "confirmDemo": "¿Deseas restaurar el mundo de muestra? Los cambios no guardados se perderán."
+  },
+  "common": {
+    "delete": "Eliminar",
+    "empty": "Sin definir",
+    "name": "Nombre",
+    "title": "Título",
+    "untitled": "Sin título"
   }
 }

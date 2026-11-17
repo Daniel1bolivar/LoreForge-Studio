@@ -3,6 +3,7 @@ import {
   appStore,
   getState,
   setView,
+  setActiveWorld,
   setThemeState,
   setLocaleState,
   toggleRpgMode,
@@ -10,7 +11,7 @@ import {
 } from '../state/store';
 import { t } from '../i18n';
 import { TREE_CATEGORIES } from '../state/defaults';
-import { h } from './dom';
+import { h, toast } from './dom';
 import { icon } from './icons';
 import { openCommandPalette } from './palette';
 import type { ViewId, ThemeId } from '../types/state';
@@ -60,15 +61,34 @@ export function renderAppShell(): HTMLElement {
         icon('book-open', 20),
         h('span', { style: 'font-weight:800; font-size:16px; letter-spacing:-0.03em;' }, ['LoreForge Studio'])
       ]),
-      // World Selector Pill
+      // 1-Click World Switcher
       h('div', {
-        class: 'header-pill',
-        style: 'display:flex; align-items:center; gap:6px; background:var(--surface-sunken); padding:4px 10px; border-radius:6px; border:1px solid var(--border-subtle); font-size:12px; cursor:pointer;',
-        onclick: () => setView('worlds')
+        class: 'header-world-selector',
+        style: 'display:flex; align-items:center; gap:6px; background:var(--surface-sunken); padding:2px 8px; border-radius:6px; border:1px solid var(--border-subtle); font-size:12px;'
       }, [
         icon('globe', 14),
-        h('span', { style: 'font-weight:600;' }, [world.name]),
-        icon('chevron-down', 12)
+        h('select', {
+          class: 'input-select input-sm',
+          style: 'border:none; background:transparent; padding:4px 6px; font-weight:700; color:var(--text-primary); cursor:pointer; outline:none; max-width:240px;',
+          title: 'Cambiar de mundo con un clic',
+          onchange: (e: any) => {
+            const val = e.target.value;
+            if (val === '__manage_worlds__') {
+              setView('worlds');
+            } else {
+              setActiveWorld(val);
+              setView('dashboard');
+            }
+          }
+        }, [
+          ...state.worlds.map((w) => {
+            const count = state.pjs.filter((p) => p.worldId === w.id).length;
+            const opt = h('option', { value: w.id }, `${w.name} (${count} PJs)`) as HTMLOptionElement;
+            if (w.id === state.activeWorldId) opt.selected = true;
+            return opt;
+          }),
+          h('option', { value: '__manage_worlds__' }, '⚙ Administrar Mundos...')
+        ])
       ]),
       // Active PJ Pill
       activePj ? h('div', {
@@ -94,6 +114,54 @@ export function renderAppShell(): HTMLElement {
 
     // Right Controls
     h('div', { style: 'display:flex; align-items:center; gap:10px;' }, [
+      // Import JSON Button
+      h('button', {
+        class: 'btn btn-secondary btn-sm',
+        title: 'Importar mundo o novela desde archivo JSON',
+        onclick: () => {
+          const fileInput = document.createElement('input');
+          fileInput.type = 'file';
+          fileInput.accept = '.json';
+          fileInput.onchange = (e: any) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+              try {
+                const parsed = JSON.parse(evt.target?.result as string);
+                if (parsed.state) {
+                  // Project envelope
+                  appStore.mutate((s) => {
+                    for (const w of parsed.state.worlds || []) {
+                      if (!s.worlds.some((x) => x.id === w.id)) s.worlds.unshift(w);
+                    }
+                    for (const p of parsed.state.pjs || []) {
+                      if (!s.pjs.some((x) => x.id === p.id)) s.pjs.push(p);
+                    }
+                    if (parsed.state.worlds?.[0]) s.activeWorldId = parsed.state.worlds[0].id;
+                    s.theme = 'cyberpunk';
+                  });
+                  toast('Proyecto importado con éxito');
+                  setView('dashboard');
+                } else if (parsed.id && parsed.name) {
+                  // Single world
+                  appStore.mutate((s) => {
+                    if (!s.worlds.some((x) => x.id === parsed.id)) s.worlds.unshift(parsed);
+                    s.activeWorldId = parsed.id;
+                  });
+                  toast(`Mundo "${parsed.name}" importado con éxito`);
+                  setView('dashboard');
+                }
+              } catch (err) {
+                toast('Error al leer el archivo JSON');
+              }
+            };
+            reader.readAsText(file);
+          };
+          fileInput.click();
+        }
+      }, [icon('download', 14), document.createTextNode('Importar JSON')]),
+
       // RPG Mode Toggle
       h('button', {
         class: `btn btn-sm ${state.rpgMode ? 'btn-primary' : 'btn-secondary'}`,

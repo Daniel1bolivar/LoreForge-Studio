@@ -257,5 +257,22 @@
     "dragHandle": "Drag to reorder or move",
     "primaryNav": "Primary navigation",
     "mobileNav": "Bottom navigation bar"
+  },
+  "worlds": {
+    "title": "Worlds Manager",
+    "subtitle": "Switch between worlds with one click, create new projects, or import archives.",
+    "create": "New World",
+    "active": "Active",
+    "activate": "Activate World",
+    "openDashboard": "Open Dashboard",
+    "confirmDelete": "Are you sure you want to delete world \"{{name}}\"? This cannot be undone.",
+    "confirmDemo": "Restore demo seed world? Any unsaved changes will be lost."
+  },
+  "common": {
+    "delete": "Delete",
+    "empty": "Not set",
+    "name": "Name",
+    "title": "Title",
+    "untitled": "Untitled"
   }
 }
