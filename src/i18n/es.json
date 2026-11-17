@@ -136,7 +136,59 @@
     "activeParadox": "Paradoja activa",
     "biometrics": "Biometría y voz",
     "variants": "Variantes de borrador",
-    "portraitModal": "Ajustar retrato"
+    "portraitModal": "Ajustar retrato",
+    "none": "No hay personaje seleccionado.",
+    "changePortrait": "Cambiar retrato",
+    "tabsLabel": "Secciones de la ficha",
+    "canonical": "Versión Canónica: {{label}}",
+    "noCanonical": "Borrador de trabajo (Sin versión canónica fija)",
+    "isFinal": "Canónico activo",
+    "setFinal": "Fijar como Canónico",
+    "canonicalSet": "Versión {{label}} establecida como canónica",
+    "confirmDelete": "¿Eliminar definitivamente el personaje {{name}}?",
+    "intimateTitle": "Capa Íntima & Vulnerabilidad Profunda (Chara Card V3 Nexus)",
+    "intimateHint": "Módulo protegido para explorar psicología íntima, defensas somáticas y evolución vincular sin censura plana.",
+    "comp": {
+      "knowledge": "Conocimientos arcanos o teóricos",
+      "craft": "Oficios, artesanías o técnica",
+      "profession": "Profesión u ocupación activa",
+      "training": "Entrenamiento especial y combate"
+    },
+    "fields": {
+      "alias": "Alias interno / Sobrenombre",
+      "role": "Rol / Ocupación principal",
+      "homeland": "Lugar de origen o patria",
+      "species": "Especie / Linaje",
+      "faction": "Facción / Credo / Lealtad",
+      "alignment": "Alineamiento / Compás moral",
+      "age": "Edad aparente o cronológica",
+      "languages": "Idiomas y dialectos hablados",
+      "virtues": "Virtudes y principios cardinales",
+      "flaws": "Defectos, vicios y fallas trágicas",
+      "motive": "Motivación nuclear inquebrantable (WB 101)",
+      "everyday": "Vida cotidiana y rutinas diarias",
+      "offscreen": "Vida fuera de escena (¿Qué hace cuando no actúa?)",
+      "history": "Historia personal y trasfondo biográfico",
+      "props": "Objetos ancla y pertenencias significativas",
+      "mask": "Máscara social (Fachada pública)",
+      "deception": "Autoengaño (La mentira que se repite a sí mismo)",
+      "wound": "Herida nuclear o deseo insatisfecho",
+      "secret": "Secreto asimétrico (Lo que oculta del mundo)",
+      "appearance": "Resumen biométrico y presencia física",
+      "voice": "Huella vocal y patrones de habla",
+      "spoken": "Diálogo manifiesto (Lo que dice)",
+      "body": "Traición corporal (Lo que sus gestos revelan)",
+      "hidden": "Pensamiento oculto (Lo que verdaderamente piensa)",
+      "experience": "Estado de experiencia y madurez íntima",
+      "anatomy": "Respuestas sensoriales y somáticas",
+      "fantasies": "Deseos nucleares y vulnerabilidades latentes",
+      "solo": "Hábitos en soledad y mecanismos de alivio",
+      "stage1": "Etapa 1: Barrera (Defensa inicial y desconfianza)",
+      "stage2": "Etapa 2: Fisura (Dudas y quiebre de la máscara)",
+      "stage3": "Etapa 3: Doble Estándar (Conflicto interno intenso)",
+      "stage4": "Etapa 4: Entrega (Apertura auténtica y confianza plena)",
+      "locks": "Límites inviolables / Hard locks"
+    }
   },
   "world": {
     "bible": "Biblia del Mundo",
@@ -273,6 +325,77 @@
     "empty": "Sin definir",
     "name": "Nombre",
     "title": "Título",
-    "untitled": "Sin título"
+    "untitled": "Sin título",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "accept": "Aceptar"
+  },
+  "doc": {
+    "subtitle": "Subtítulo o epígrafe",
+    "tags": "Etiquetas (separadas por comas)",
+    "banner": "Estilo de estandarte pixel",
+    "summary": "Resumen ejecutivo / Sinopsis",
+    "body": "Cuerpo del documento",
+    "bodyPlaceholder": "Escribe aquí en Markdown con soporte para enlaces [[Wiki]]...",
+    "preview": "Vista previa renderizada",
+    "wikiHint": "Usa [[Nombre de Entidad]] para vincular automáticamente personajes, lugares y conceptos.",
+    "back": "Volver a Galería",
+    "confirmDelete": "¿Eliminar definitivamente este documento del archivo?",
+    "bannerStyles": {
+      "waves": "Ondas",
+      "peaks": "Picos",
+      "grid": "Retícula",
+      "constellation": "Constelación"
+    }
+  },
+  "gallery": {
+    "newCharacter": "+ Nuevo Personaje",
+    "newEntry": "+ Nueva Entrada",
+    "folderNote": "Nota de Carpeta",
+    "folderNotePlaceholder": "Escribe una visión general o directriz para esta categoría...",
+    "filter": "Filtrar por nombre o etiqueta...",
+    "count": "{{count}} elemento(s)",
+    "empty": "No hay elementos en esta categoría todavía.",
+    "create": "Crear",
+    "noDescription": "Sin descripción disponible.",
+    "moveEarlier": "Subir en el orden",
+    "moveLater": "Bajar en el orden",
+    "switchCategory": "Cambiar categoría"
+  },
+  "graph": {
+    "title": "Grafo de Relaciones Canvas"
+  },
+  "maps": {
+    "title": "Atlas & Mapas Interactivos"
+  },
+  "timeline": {
+    "title": "Línea Temporal Multitrack"
+  },
+  "wiki": {
+    "missing": "Entidad no encontrada",
+    "kind": {
+      "lore": "Lore / Archivo"
+    }
+  },
+  "rpg": {
+    "rollAttr": "Tirar d20 para {{attr}}",
+    "statblock": "Bloque de Estadísticas RPG / VTT",
+    "level": "Nivel",
+    "hp": "Puntos de Golpe (HP)",
+    "maxHp": "HP Máximo",
+    "ac": "Clase de Armadura (AC)",
+    "class": "Clase / Arquetipo",
+    "speed": "Velocidad",
+    "notes": "Notas de combate y habilidades"
+  },
+  "relations": {
+    "from": "Origen",
+    "type": "Tipo de Relación",
+    "to": "Destino",
+    "faction": "Facción compartida",
+    "notes": "Detalles del vínculo o tensión",
+    "subtitle": "Malla de vínculos interpersonales, lealtades y rivalidades",
+    "add": "+ Añadir Vínculo",
+    "empty": "No hay relaciones registradas en este mundo todavía."
   }
 }

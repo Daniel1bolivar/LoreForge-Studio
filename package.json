@@ -13,7 +13,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test": "node tests/unit/validate-schemas.mjs",
+    "test": "node tests/unit/validate-schemas.mjs && node tests/unit/test-ui-css.mjs",
+    "test:css": "node tests/unit/test-ui-css.mjs",
     "validate:schemas": "node tests/unit/validate-schemas.mjs",
     "test:e2e": "playwright test"
   },

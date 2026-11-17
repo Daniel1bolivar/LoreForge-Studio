@@ -141,7 +141,8 @@ body {
   font-size: 12px;
 }
 
-.input-text, .input-select, .input-textarea {
+.input-text, .input-select, .input-textarea,
+input[type="text"], input[type="number"], input[type="search"], textarea, select {
   width: 100%;
   padding: 8px 12px;
   border-radius: 6px;
@@ -151,11 +152,14 @@ body {
   font-size: 13px;
   font-family: inherit;
   outline: none;
-  transition: border-color var(--duration-fast);
+  box-sizing: border-box;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
 }
 
-.input-text:focus, .input-select:focus, .input-textarea:focus {
+.input-text:focus, .input-select:focus, .input-textarea:focus,
+input[type="text"]:focus, input[type="number"]:focus, input[type="search"]:focus, textarea:focus, select:focus {
   border-color: var(--accent-primary);
+  box-shadow: 0 0 0 1px var(--accent-primary);
 }
 
 .badge {

@@ -136,7 +136,59 @@
     "activeParadox": "Active paradox",
     "biometrics": "Biometrics & voice",
     "variants": "Draft variants",
-    "portraitModal": "Adjust portrait"
+    "portraitModal": "Adjust portrait",
+    "none": "No character selected.",
+    "changePortrait": "Change portrait",
+    "tabsLabel": "Sheet sections",
+    "canonical": "Canonical Version: {{label}}",
+    "noCanonical": "Working draft (No fixed canonical version)",
+    "isFinal": "Active canon",
+    "setFinal": "Set as Canonical",
+    "canonicalSet": "Version {{label}} set as canonical",
+    "confirmDelete": "Permanently delete character {{name}}?",
+    "intimateTitle": "Intimate Layer & Deep Vulnerability (Chara Card V3 Nexus)",
+    "intimateHint": "Protected module to explore intimate psychology, somatic defenses, and bond evolution.",
+    "comp": {
+      "knowledge": "Arcane or academic knowledge",
+      "craft": "Crafts, trades, or technical skills",
+      "profession": "Active profession or trade",
+      "training": "Special training and combat skills"
+    },
+    "fields": {
+      "alias": "Internal alias / Nickname",
+      "role": "Role / Primary occupation",
+      "homeland": "Place of origin or homeland",
+      "species": "Species / Lineage",
+      "faction": "Faction / Creed / Allegiance",
+      "alignment": "Alignment / Moral compass",
+      "age": "Apparent or chronological age",
+      "languages": "Languages and dialects spoken",
+      "virtues": "Virtues and cardinal principles",
+      "flaws": "Flaws, vices, and tragic traits",
+      "motive": "Unshakable core motivation (WB 101)",
+      "everyday": "Everyday life and daily routines",
+      "offscreen": "Off-screen life (What do they do outside the story?)",
+      "history": "Personal history and biography",
+      "props": "Anchor props and meaningful possessions",
+      "mask": "Social mask (Public facade)",
+      "deception": "Self-deception (The lie they tell themselves)",
+      "wound": "Core wound or unmet nuclear desire",
+      "secret": "Asymmetric secret (What they hide from the world)",
+      "appearance": "Biometrics and physical presence",
+      "voice": "Vocal fingerprint and speech patterns",
+      "spoken": "Spoken dialogue (What they say)",
+      "body": "Body betrayal (What their gestures reveal)",
+      "hidden": "Hidden thought (What they truly think)",
+      "experience": "Intimate experience and maturity level",
+      "anatomy": "Sensory and somatic responses",
+      "fantasies": "Core desires and latent vulnerabilities",
+      "solo": "Solitary habits and coping mechanisms",
+      "stage1": "Stage 1: Barrier (Initial defense and suspicion)",
+      "stage2": "Stage 2: Fissure (Doubts and mask fracture)",
+      "stage3": "Stage 3: Double Standard (Intense inner conflict)",
+      "stage4": "Stage 4: Surrender (Authentic openness and full trust)",
+      "locks": "Inviolable limits / Hard locks"
+    }
   },
   "world": {
     "bible": "World Bible",
@@ -273,6 +325,77 @@
     "empty": "Not set",
     "name": "Name",
     "title": "Title",
-    "untitled": "Untitled"
+    "untitled": "Untitled",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "accept": "Accept"
+  },
+  "doc": {
+    "subtitle": "Subtitle or epigraph",
+    "tags": "Tags (comma separated)",
+    "banner": "Pixel banner style",
+    "summary": "Executive summary / Synopsis",
+    "body": "Document body",
+    "bodyPlaceholder": "Write here in Markdown with [[Wiki]] links support...",
+    "preview": "Rendered preview",
+    "wikiHint": "Use [[Entity Name]] to automatically link characters, locations, and concepts.",
+    "back": "Back to Gallery",
+    "confirmDelete": "Permanently delete this document from the archive?",
+    "bannerStyles": {
+      "waves": "Waves",
+      "peaks": "Peaks",
+      "grid": "Grid",
+      "constellation": "Constellation"
+    }
+  },
+  "gallery": {
+    "newCharacter": "+ New Character",
+    "newEntry": "+ New Entry",
+    "folderNote": "Folder Note",
+    "folderNotePlaceholder": "Write an overview or guideline for this category...",
+    "filter": "Filter by name or tag...",
+    "count": "{{count}} item(s)",
+    "empty": "No items in this category yet.",
+    "create": "Create",
+    "noDescription": "No description available.",
+    "moveEarlier": "Move up",
+    "moveLater": "Move down",
+    "switchCategory": "Switch category"
+  },
+  "graph": {
+    "title": "Canvas Relations Graph"
+  },
+  "maps": {
+    "title": "Atlas & Interactive Maps"
+  },
+  "timeline": {
+    "title": "Multitrack Timeline"
+  },
+  "wiki": {
+    "missing": "Entity not found",
+    "kind": {
+      "lore": "Lore / Archive"
+    }
+  },
+  "rpg": {
+    "rollAttr": "Roll d20 for {{attr}}",
+    "statblock": "RPG / VTT Statblock",
+    "level": "Level",
+    "hp": "Hit Points (HP)",
+    "maxHp": "Max HP",
+    "ac": "Armor Class (AC)",
+    "class": "Class / Archetype",
+    "speed": "Speed",
+    "notes": "Combat notes and features"
+  },
+  "relations": {
+    "from": "Origin",
+    "type": "Relation Type",
+    "to": "Target",
+    "faction": "Shared Faction",
+    "notes": "Bond or tension details",
+    "subtitle": "Network of interpersonal bonds, loyalties, and rivalries",
+    "add": "+ Add Relation",
+    "empty": "No relations registered in this world yet."
   }
 }

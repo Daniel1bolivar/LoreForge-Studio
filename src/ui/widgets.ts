@@ -19,6 +19,8 @@ export interface InputOpts {
 }
 
 export function textInput(opts: InputOpts): HTMLInputElement {
+  const cls = ['input-text'];
+  if (opts.class) cls.push(opts.class);
   const el = h('input', {
     type: opts.type || 'text',
     id: opts.id,
@@ -28,7 +30,7 @@ export function textInput(opts: InputOpts): HTMLInputElement {
     max: opts.max,
     step: opts.step,
     'aria-label': opts.ariaLabel,
-    class: opts.class,
+    class: cls.join(' '),
     value: opts.value,
   });
   el.addEventListener('input', () => quiet(() => opts.onInput(el.value)));
@@ -36,12 +38,14 @@ export function textInput(opts: InputOpts): HTMLInputElement {
 }
 
 export function textArea(opts: InputOpts & { rows?: number }): HTMLTextAreaElement {
+  const cls = ['input-textarea'];
+  if (opts.class) cls.push(opts.class);
   const el = h('textarea', {
     id: opts.id,
     placeholder: opts.placeholder,
     rows: opts.rows || 4,
     'aria-label': opts.ariaLabel,
-    class: opts.class,
+    class: cls.join(' '),
   });
   el.value = opts.value;
   el.addEventListener('input', () => quiet(() => opts.onInput(el.value)));
@@ -54,9 +58,11 @@ export function selectBox(
   onChange: (value: string) => void,
   attrs: { id?: string; ariaLabel?: string; class?: string } = {}
 ): HTMLSelectElement {
+  const cls = ['input-select'];
+  if (attrs.class) cls.push(attrs.class);
   const el = h(
     'select',
-    { id: attrs.id, 'aria-label': attrs.ariaLabel, class: attrs.class },
+    { id: attrs.id, 'aria-label': attrs.ariaLabel, class: cls.join(' ') },
     ...options.map((o) => h('option', { value: o.value }, o.label))
   );
   el.value = value;

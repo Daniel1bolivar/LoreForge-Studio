@@ -1,10 +1,10 @@
 import { t } from '../i18n';
 import {
-  appStore,
   createWorld,
   deleteWorld,
   getState,
   resetToDemoSeed,
+  restoreMasterGemaBook,
   setActiveWorld,
   setView,
 } from '../state/store';
@@ -75,37 +75,15 @@ export function renderWorlds(): HTMLElement {
           }
         }),
         { icon: 'plus', variant: 'primary' }),
-      btn('Cargar La gema de las almas (32 PJs)', async () => {
-        try {
-          const res = await fetch('/api/local-gema');
-          if (res.ok) {
-            const data = await res.json();
-            if (data && data.state) {
-              const gWorld = data.state.worlds[0];
-              const gPjs = data.state.pjs || [];
-              appStore.mutate((state) => {
-                if (!state.worlds.some((w) => w.id === gWorld.id)) {
-                  state.worlds.unshift(gWorld);
-                }
-                for (const p of gPjs) {
-                  if (!state.pjs.some((x) => x.id === p.id)) {
-                    state.pjs.push(p);
-                  }
-                }
-                state.activeWorldId = gWorld.id;
-                state.activePjId = gPjs[0]?.id || '';
-                state.theme = 'cyberpunk';
-              });
-              toast('¡La gema de las almas cargada con éxito!');
-              setView('dashboard');
-            }
-          } else {
-            toast('No se encontró el archivo local en private/');
-          }
-        } catch (err) {
-          toast('Error al conectar con la API local');
+      btn('Restaurar "La gema de las almas" (32 PJs)', async () => {
+        const res = await restoreMasterGemaBook();
+        if (res.ok) {
+          toast(`¡"La gema de las almas" restaurada con éxito! (${res.count} PJs y capítulos recuperados)`);
+          setView('dashboard');
+        } else {
+          toast(res.error || 'No se pudo conectar con el archivo local');
         }
-      }, { icon: 'download', variant: 'primary' }),
+      }, { icon: 'refresh', variant: 'primary' }),
       btn(t('app.demoReset'), () =>
         confirmDialog(t('worlds.confirmDemo'), t('app.demoReset'), () => {
           resetToDemoSeed();

@@ -873,6 +873,41 @@ export function replaceProjectState(next: Partial<AppState>): StoreMutationResul
   return commit();
 }
 
+export async function restoreMasterGemaBook(): Promise<{ ok: boolean; count: number; error?: string }> {
+  try {
+    const res = await fetch('/api/local-gema');
+    if (!res.ok) return { ok: false, count: 0, error: 'Endpoint local no disponible' };
+    const data = await res.json();
+    if (!data || !data.state || !Array.isArray(data.state.worlds) || !data.state.worlds[0]) {
+      return { ok: false, count: 0, error: 'Formato inválido de archivo maestro' };
+    }
+    const gWorld: WorldMaster = data.state.worlds[0];
+    const gPjs: PJMaster[] = data.state.pjs || [];
+
+    appStore.mutate((s) => {
+      const wIdx = s.worlds.findIndex((w) => w.id === gWorld.id);
+      if (wIdx >= 0) {
+        s.worlds[wIdx] = JSON.parse(JSON.stringify(gWorld));
+      } else {
+        s.worlds.unshift(JSON.parse(JSON.stringify(gWorld)));
+      }
+
+      s.pjs = s.pjs.filter((p) => p.worldId !== gWorld.id);
+      for (const p of gPjs) {
+        s.pjs.push(JSON.parse(JSON.stringify(p)));
+      }
+
+      s.activeWorldId = gWorld.id;
+      s.activePjId = gPjs[0]?.id || '';
+      s.theme = 'cyberpunk';
+    });
+
+    return { ok: true, count: gPjs.length };
+  } catch (err: any) {
+    return { ok: false, count: 0, error: err?.message || 'Error de conexión' };
+  }
+}
+
 export const setThemeState = setTheme;
 export const toggleRpgMode = (): StoreMutationResult => setRpgMode(!getState().rpgMode);
 export const toggleExplicitMode = (): StoreMutationResult => setExplicitMode(!getState().explicitMode);

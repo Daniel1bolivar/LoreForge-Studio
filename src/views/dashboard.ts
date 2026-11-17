@@ -1,9 +1,12 @@
 import { t } from '../i18n';
 import {
+  createWorld,
   getActiveWorld,
   getState,
   getWorldPJs,
   isModuleEnabled,
+  restoreMasterGemaBook,
+  setActiveWorld,
   setGalleryCat,
   setView,
 } from '../state/store';
@@ -12,9 +15,9 @@ import { detectContradictions } from '../engines/contradictions';
 import { countWords } from '../engines/wikilinks';
 import { ARCHIVE_CATEGORY_KEYS } from '../state/defaults';
 import { pixelBanner } from '../ui/banner';
-import { h } from '../ui/dom';
+import { h, toast } from '../ui/dom';
 import { icon } from '../ui/icons';
-import { badge, section } from '../ui/widgets';
+import { badge, btn, openModal, promptDialog, section } from '../ui/widgets';
 
 interface QuickAction {
   icon: string;
@@ -26,6 +29,77 @@ interface QuickAction {
 
 function go(view: ViewId): () => void {
   return () => setView(view);
+}
+
+export function openQuickWorldSwitcher(): void {
+  const s = getState();
+  const content = h('div', { style: 'display:flex; flex-direction:column; gap:16px; padding:16px;' }, [
+    h('p', { class: 'text-sm text-muted' }, [
+      'Haz clic en cualquier ficha de mundo para activarlo y trabajar en él de inmediato:'
+    ]),
+    h('div', {
+      class: 'world-switcher-list',
+      style: 'display:flex; flex-direction:column; gap:10px; max-height:360px; overflow-y:auto;'
+    }, ...s.worlds.map((w) => {
+      const pjs = s.pjs.filter((p) => p.worldId === w.id);
+      const isActive = w.id === s.activeWorldId;
+      return h('div', {
+        class: `world-card-item ${isActive ? 'active' : ''}`,
+        style: `display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-radius:8px; border:1px solid ${isActive ? 'var(--accent-primary)' : 'var(--border-subtle)'}; background:${isActive ? 'var(--surface-elevated)' : 'var(--surface-sunken)'}; cursor:pointer; transition:all 0.15s;`,
+        onclick: () => {
+          setActiveWorld(w.id);
+          toast(`Mundo activo: ${w.name}`);
+          closeModal();
+          setView('dashboard');
+        }
+      }, [
+        h('div', { style: 'display:flex; flex-direction:column; gap:4px;' }, [
+          h('div', { style: 'display:flex; align-items:center; gap:8px;' }, [
+            icon('globe', 16),
+            h('strong', { style: 'font-size:14px;' }, [w.name]),
+            isActive ? badge('Activo', 'accent') : null
+          ]),
+          h('span', { class: 'text-xs text-muted' }, [w.genre_tone || 'Sin descripción']),
+          h('span', { class: 'text-xs text-muted' }, [`${pjs.length} personaje(s) registrados`])
+        ]),
+        h('button', {
+          class: `btn btn-sm ${isActive ? 'btn-ghost' : 'btn-primary'}`,
+          onclick: (e: MouseEvent) => {
+            e.stopPropagation();
+            setActiveWorld(w.id);
+            toast(`Mundo activo: ${w.name}`);
+            closeModal();
+            setView('dashboard');
+          }
+        }, [isActive ? 'Seleccionado' : 'Cambiar a este'])
+      ]);
+    })),
+    h('div', { style: 'display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:8px; border-top:1px solid var(--border-subtle); padding-top:12px;' }, [
+      btn('+ Crear Nuevo Mundo', () => {
+        closeModal();
+        promptDialog(t('worlds.create'), t('common.name'), '', (name) => {
+          const res = createWorld(name);
+          if (res.ok && res.data) {
+            setActiveWorld(res.data.id);
+            toast(t('toasts.worldCreated', { name }));
+            setView('dashboard');
+          }
+        });
+      }, { variant: 'ghost', small: true, icon: 'plus' }),
+      btn('🔄 Restaurar copia maestra ("La gema de las almas")', async () => {
+        closeModal();
+        const res = await restoreMasterGemaBook();
+        if (res.ok) {
+          toast(`¡"La gema de las almas" restaurada con éxito! (${res.count} PJs y lore recuperados)`);
+          setView('dashboard');
+        } else {
+          toast(res.error || 'No se pudo contactar con el respaldo maestro');
+        }
+      }, { variant: 'primary', small: true, icon: 'refresh' })
+    ])
+  ]);
+
+  const closeModal = openModal('Cambiar de Mundo (1 Clic)', content);
 }
 
 export function renderDashboard(): HTMLElement {
@@ -79,14 +153,52 @@ export function renderDashboard(): HTMLElement {
     { class: 'view dashboard' },
     h(
       'header',
-      { class: 'hero' },
+      {
+        class: 'hero hero-interactive',
+        style: 'cursor:pointer; position:relative;',
+        title: 'Haz clic aquí para cambiar entre los mundos creados',
+        onclick: (e: MouseEvent) => {
+          if ((e.target as HTMLElement).closest('button')) return;
+          openQuickWorldSwitcher();
+        }
+      },
       pixelBanner(world.pixel_banner, world.id, 96),
       h(
         'div',
         { class: 'hero-body' },
-        h('h2', { class: 'hero-title' }, world.name),
-        h('p', { class: 'hero-sub' }, world.genre_tone || t('common.empty')),
-        h('div', { class: 'hero-meta' }, badge(world.system_tag || 'narrativa'), badge(`${pjs.length} ${t('dashboard.stats.characters').toLowerCase()}`))
+        h('div', { style: 'display:flex; justify-content:space-between; align-items:flex-start; gap:12px;' }, [
+          h('div', { style: 'display:flex; flex-direction:column; gap:4px;' }, [
+            h('h2', {
+              class: 'hero-title hero-title-interactive',
+              style: 'display:flex; align-items:center; gap:8px;'
+            }, [
+              world.name,
+              icon('chevron-down', 20)
+            ]),
+            h('p', { class: 'hero-sub' }, world.genre_tone || t('common.empty'))
+          ]),
+          h('button', {
+            class: 'btn btn-secondary btn-sm',
+            style: 'flex-shrink:0; display:flex; align-items:center; gap:6px;',
+            title: 'Cambiar de mundo con un clic',
+            onclick: (e: MouseEvent) => {
+              e.stopPropagation();
+              openQuickWorldSwitcher();
+            }
+          }, [icon('globe', 14), document.createTextNode('Cambiar Mundo ▾')])
+        ]),
+        h('div', { class: 'hero-meta' }, [
+          badge(world.system_tag || 'narrativa'),
+          badge(`${pjs.length} ${t('dashboard.stats.characters').toLowerCase()}`),
+          h('button', {
+            class: 'badge badge-interactive',
+            style: 'cursor:pointer; background:var(--accent-subtle); color:var(--accent-primary); border:1px solid var(--accent-primary); display:inline-flex; align-items:center; gap:4px;',
+            onclick: (e: MouseEvent) => {
+              e.stopPropagation();
+              openQuickWorldSwitcher();
+            }
+          }, [icon('globe', 12), document.createTextNode('Ver Mundos')])
+        ])
       )
     ),
     h(
