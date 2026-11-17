@@ -1,0 +1,213 @@
+/* LoreForge Studio — Design Tokens & Core Theme System */
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', Menlo, Monaco, Consolas, monospace;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Transitions */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* 1. Theme: Pergamino (Warm parchment paper, classic novel feel) */
+[data-theme="pergamino"] {
+  --surface-base: #f7f3e8;
+  --surface-sunken: #ede6d4;
+  --surface-elevated: #ffffff;
+  --border-subtle: #d6cbaf;
+  --border-strong: #9c8a68;
+  --text-primary: #29241d;
+  --text-secondary: #5e5445;
+  --text-muted: #8a7e6b;
+  --accent-primary: #944a1e;
+  --accent-hover: #7b3d18;
+  --status-success: #2b7a4b;
+  --status-warning: #b45309;
+  --status-danger: #b91c1c;
+}
+
+/* 2. Theme: Grimorio (Dark obsidian fantasy, deep violet-slate accents) */
+[data-theme="grimorio"] {
+  --surface-base: #0f1117;
+  --surface-sunken: #090a0f;
+  --surface-elevated: #1a1d27;
+  --border-subtle: #2b3042;
+  --border-strong: #4a526f;
+  --text-primary: #f1f3f9;
+  --text-secondary: #a6b0cf;
+  --text-muted: #6b7594;
+  --accent-primary: #818cf8;
+  --accent-hover: #6366f1;
+  --status-success: #10b981;
+  --status-warning: #f59e0b;
+  --status-danger: #ef4444;
+}
+
+/* 3. Theme: Dossier (Clean modern editorial / investigator archive) */
+[data-theme="dossier"] {
+  --surface-base: #ffffff;
+  --surface-sunken: #f4f4f5;
+  --surface-elevated: #ffffff;
+  --border-subtle: #e4e4e7;
+  --border-strong: #a1a1aa;
+  --text-primary: #09090b;
+  --text-secondary: #52525b;
+  --text-muted: #71717a;
+  --accent-primary: #2563eb;
+  --accent-hover: #1d4ed8;
+  --status-success: #059669;
+  --status-warning: #d97706;
+  --status-danger: #dc2626;
+}
+
+/* 4. Theme: Cyberpunk (HUD Táctico - High contrast OLED dark) */
+[data-theme="cyberpunk"] {
+  --surface-base: #0a0a0c;
+  --surface-sunken: #000000;
+  --surface-elevated: #141419;
+  --border-subtle: #272732;
+  --border-strong: #ff0055;
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #52525b;
+  --accent-primary: #00f0ff;
+  --accent-hover: #00c8d6;
+  --status-success: #00ff66;
+  --status-warning: #ffb800;
+  --status-danger: #ff0055;
+}
+
+/* Base resets & typography */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  background: var(--surface-base);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Common UI Elements */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.btn-primary {
+  background: var(--accent-primary);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.btn-secondary {
+  background: var(--surface-sunken);
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+}
+
+.btn-secondary:hover {
+  border-color: var(--border-strong);
+}
+
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.input-text, .input-select, .input-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-sunken);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color var(--duration-fast);
+}
+
+.input-text:focus, .input-select:focus, .input-textarea:focus {
+  border-color: var(--accent-primary);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.badge-primary {
+  background: var(--accent-primary);
+  color: #fff;
+  border: none;
+}
+
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+/* Palette item hover */
+.palette-item:hover {
+  background: var(--surface-sunken);
+}
+
+/* Tree hover */
+.tree-cat-header:hover {
+  background: var(--surface-elevated);
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
+}

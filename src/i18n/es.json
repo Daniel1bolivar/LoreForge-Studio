@@ -1,0 +1,232 @@
+{
+  "app": {
+    "title": "LoreForge Studio",
+    "subtitle": "Estudio local de construcción de mundos, fichas de personaje y narrativa modular",
+    "demoReset": "Restaurar mundo de muestra"
+  },
+  "nav": {
+    "dashboard": "Inicio",
+    "pj": "Ficha PJ",
+    "world": "Biblia del Mundo",
+    "worlds": "Mundos",
+    "gallery": "Galería",
+    "doc": "Documento",
+    "relations": "Relaciones",
+    "graph": "Grafo",
+    "timeline": "Línea Temporal",
+    "maps": "Mapas",
+    "contradictions": "Contradicciones",
+    "rpg": "Capa RPG",
+    "kanban": "Escenas",
+    "calendar": "Calendario",
+    "player": "Vista Jugador",
+    "tom": "Teoría de la Mente",
+    "cmdKPlaceholder": "Buscar entidad, vista o comando...",
+    "more": "Más"
+  },
+  "themes": {
+    "pergamino": "Pergamino",
+    "grimorio": "Grimorio",
+    "dossier": "Dossier",
+    "cyberpunk": "HUD Táctico"
+  },
+  "topbar": {
+    "searchPlaceholder": "Buscar o ir a [[entidad]]...",
+    "themeLabel": "Tema",
+    "langLabel": "Idioma",
+    "fileSave": "Guardar .json",
+    "fileOpen": "Abrir archivo",
+    "fileLinked": "Archivo vinculado",
+    "fileReconnect": "Reconectar archivo",
+    "fileUnlinked": "Sin archivo local",
+    "importBtn": "Importar",
+    "exportBtn": "Exportar / Compilar"
+  },
+  "tree": {
+    "filterPlaceholder": "Filtrar archivo...",
+    "folderNote": "Nota de carpeta",
+    "addItem": "Añadir entrada",
+    "categories": {
+      "chapters": "Capítulos",
+      "lore_entries": "Notas de Lore",
+      "characters": "Personajes",
+      "locations": "Lugares / Geografía",
+      "events": "Eventos",
+      "political_groups": "Política e Ideologías",
+      "factions": "Organizaciones / Facciones",
+      "religious_groups": "Religión y Creencias",
+      "magic_groups": "Magia y Arcano",
+      "tech_groups": "Ciencia y Tecnología",
+      "species": "Especies / Razas",
+      "items": "Objetos y Reliquias",
+      "languages": "Idiomas",
+      "currencies": "Monedas",
+      "myths": "Mitos y Leyendas",
+      "relations": "Relaciones (Mundo)"
+    }
+  },
+  "dashboard": {
+    "title": "Panel del Mundo",
+    "stats": {
+      "characters": "Personajes",
+      "archiveDocs": "Entradas de archivo",
+      "relations": "Relaciones",
+      "words": "Palabras escritas",
+      "contradictions": "Alertas de coherencia"
+    },
+    "quickActions": "Accesos rápidos"
+  },
+  "pj": {
+    "tabs": {
+      "all": "Todo",
+      "identidad": "Identidad",
+      "rpg": "Atributos y RPG",
+      "wb": "Worldbuilding 101",
+      "psico": "Psicología",
+      "intimo": "Capa Íntima"
+    },
+    "status": {
+      "label": "Estado vital",
+      "alive": "Vivo",
+      "deceased": "Fallecido",
+      "missing": "Desaparecido",
+      "unknown": "Desconocido"
+    },
+    "deathOrder": "Orden de fallecimiento en timeline",
+    "identity": "Identidad y linaje",
+    "attributes": "Atributos base",
+    "tiers": {
+      "tier1": "Muy bajo",
+      "tier2": "Limitado",
+      "tier3": "Promedio",
+      "tier4": "Destacado",
+      "tier5": "Excepcional"
+    },
+    "competencies": "Competencias",
+    "wb101": "Worldbuilding 101",
+    "psychology": "Psicología y máscara",
+    "activeParadox": "Paradoja activa",
+    "biometrics": "Biometría y voz",
+    "variants": "Variantes de borrador",
+    "portraitModal": "Ajustar retrato"
+  },
+  "world": {
+    "bible": "Biblia del Mundo",
+    "laws": "Leyes internas",
+    "factions": "Facciones",
+    "factionColor": "Color de facción",
+    "homebrew": {
+      "languages": "Idiomas",
+      "species": "Especies",
+      "traits": "Rasgos",
+      "commonSelect": "Idioma común por defecto",
+      "buckets": {
+        "common": "Común",
+        "uncommon": "Poco común",
+        "rare": "Raro",
+        "secret": "Secreto",
+        "unavailable": "Inaccesible"
+      }
+    },
+    "loreEntries": "Glosario de Lore",
+    "audit": {
+      "title": "Auditoría de consistencia",
+      "c1": "Ninguna escena viola las leyes físicas, mágicas o legales del mundo.",
+      "c2": "Las decisiones de protagonistas y antagonistas tienen causalidad lógica.",
+      "c3": "Todo personaje relevante tiene motivo propio y competencias justificadas.",
+      "c4": "Está definido cómo vive un ciudadano promedio un día ordinario.",
+      "c5": "Los personajes mantienen rutinas y círculos creíbles fuera de cámara.",
+      "c6": "El entorno muestra capas de tiempo e historia pasada."
+    },
+    "modulesTitle": "Módulos del Mundo"
+  },
+  "modules": {
+    "title": "Módulos opcionales del mundo",
+    "desc": "Activa solo las herramientas que necesite este proyecto. Permanecen ocultas mientras estén apagadas.",
+    "on": "Activo",
+    "off": "Apagado",
+    "diceRoller": {
+      "name": "Lanzador de dados",
+      "desc": "Notación NdS+M e historial rápido de tiradas."
+    },
+    "rpgStatblocks": {
+      "name": "Bloques RPG",
+      "desc": "HP, CA, ataques, recursos y habilidades tácticas por personaje."
+    },
+    "initiativeTracker": {
+      "name": "Rastreador de iniciativa",
+      "desc": "Turnos de combate, puntos de golpe y condiciones en escena."
+    },
+    "sceneKanban": {
+      "name": "Kanban de escenas",
+      "desc": "Tablero de progreso narrativo (Idea, Borrador, Revisión, Canon)."
+    },
+    "customCalendar": {
+      "name": "Calendario del mundo",
+      "desc": "Meses, eras y días personalizados enlazados a la cronología."
+    },
+    "playerView": {
+      "name": "Vista Jugador",
+      "desc": "Modo presentación sin secretos asimétricos ni notas privadas."
+    },
+    "theoryOfMind": {
+      "name": "Matriz de Teoría de la Mente",
+      "desc": "Mapa cruzado de qué sabe, sospecha u oculta cada personaje."
+    },
+    "intimateModule": {
+      "name": "Capa Dinámica Íntima",
+      "desc": "Desbloquea campos íntimos en fichas; se mantiene en SFW salvo activación explícita."
+    },
+    "explicitToggle": "Modo explícito",
+    "sfwMode": "Modo SFW",
+    "explicitMode": "Modo Explícito"
+  },
+  "views": {
+    "gallery": "Galería visual",
+    "doc": "Editor documental",
+    "relations": "Lista de relaciones",
+    "graph": "Grafo interactivo",
+    "timeline": "Línea temporal multi-track",
+    "maps": "Mapas anidados",
+    "contradictions": "Detector de contradicciones",
+    "rpg": "Suite RPG e Iniciativa",
+    "kanban": "Tablero Kanban",
+    "calendar": "Calendario personalizado",
+    "player": "Vista Jugador",
+    "tom": "Teoría de la Mente",
+    "dice": "Dados",
+    "exportBridge": "Exportar y Puentes VTT/RP",
+    "compiler": "Compilador de Biblia y Manuscrito"
+  },
+  "errors": {
+    "emptyLabel": "Introduce un nombre válido antes de continuar.",
+    "duplicateSlug": "Ya existe un elemento con la clave \"{{slug}}\".",
+    "reservedSlug": "La clave \"{{slug}}\" está reservada por el sistema.",
+    "notFound": "No se encontró el elemento con la clave \"{{slug}}\".",
+    "minOneWorld": "Debe existir al menos un mundo activo en el estudio.",
+    "invalidJson": "El archivo JSON no tiene un formato válido para LoreForge Studio.",
+    "fileReadError": "No se pudo leer el archivo seleccionado.",
+    "quotaExceeded": "El almacenamiento local está lleno. Guarda tu proyecto en un archivo .worldbuilder.json."
+  },
+  "toasts": {
+    "saved": "Cambios guardados localmente.",
+    "worldCreated": "Mundo \"{{name}}\" creado.",
+    "worldDeleted": "Mundo eliminado.",
+    "pjCreated": "Personaje \"{{name}}\" creado.",
+    "pjDeleted": "Personaje eliminado.",
+    "docDeleted": "Entrada eliminada del archivo.",
+    "langAdded": "Idioma \"{{label}}\" añadido.",
+    "speciesAdded": "Especie \"{{label}}\" añadida.",
+    "traitAdded": "Rasgo \"{{label}}\" añadido.",
+    "moduleToggled": "Módulo actualizado.",
+    "demoReloaded": "Mundo de muestra restaurado.",
+    "imported": "Datos importados correctamente."
+  },
+  "a11y": {
+    "openMenu": "Abrir menú lateral",
+    "closeModal": "Cerrar ventana",
+    "dragHandle": "Arrastrar para reordenar o mover",
+    "primaryNav": "Navegación principal",
+    "mobileNav": "Barra de navegación inferior"
+  }
+}

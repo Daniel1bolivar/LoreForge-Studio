@@ -1,0 +1,235 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://miescritura.local/schemas/pj-master.schema.json",
+  "title": "PJ Master Schema (Narrativa + Worldbuilding 101 + Pathfinder Ligero + Nexus V3)",
+  "type": "object",
+  "required": ["schema_version", "mode", "identity", "attributes", "worldbuilding_101", "psychology"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0.0" },
+    "id": { "type": "string", "description": "Identificador único del personaje" },
+    "worldId": { "type": "string" },
+    "avatar": { "type": "string", "description": "URL o Data URI base64 del retrato del personaje" },
+    "mode": { "type": "string", "enum": ["sfw", "explicit"] },
+    "status": {
+      "type": "string",
+      "enum": ["alive", "deceased", "missing", "unknown"],
+      "description": "Estado vital del personaje para detección de contradicciones cronológicas"
+    },
+    "death_order": {
+      "type": ["integer", "number", "null"],
+      "description": "Orden numérico en la línea temporal en que muere el personaje (si status = deceased)"
+    },
+    "death_event_id": {
+      "type": ["string", "null"],
+      "description": "ID del evento en timeline_events asociado al fallecimiento"
+    },
+    "canonical_version": { "type": "string", "description": "Etiqueta o fuente elegida como versión final canónica" },
+    "variants": {
+      "type": "array",
+      "description": "Variantes históricas o borradores alternativos extraídos de archivos de ideas",
+      "items": {
+        "type": "object",
+        "required": ["label", "source", "notes"],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "source": { "type": "string" },
+          "notes": { "type": "string" },
+          "apply_name": { "type": "string" },
+          "apply_alias": { "type": "string" },
+          "apply_species": { "type": "string" }
+        }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "required": ["name", "role_occupation", "species_lineage", "homeland"],
+      "properties": {
+        "name": { "type": "string" },
+        "internal_alias": { "type": "string" },
+        "age": { "type": ["integer", "string"] },
+        "species_lineage": { "type": "string" },
+        "role_occupation": { "type": "string" },
+        "homeland": { "type": "string" },
+        "deity_creed": { "type": "string" },
+        "alignment_morality": { "type": "string" },
+        "languages": { "type": "array", "items": { "type": "string" } },
+        "virtues": { "type": "array", "items": { "type": "string" } },
+        "flaws": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "attributes": {
+      "type": "object",
+      "description": "Escala 1-10 con puente RPG (Pathfinder / Sistema d20)",
+      "required": ["STR", "DEX", "CON", "INT", "WIS", "CHA"],
+      "properties": {
+        "STR": { "type": "integer", "minimum": 1, "maximum": 10 },
+        "DEX": { "type": "integer", "minimum": 1, "maximum": 10 },
+        "CON": { "type": "integer", "minimum": 1, "maximum": 10 },
+        "INT": { "type": "integer", "minimum": 1, "maximum": 10 },
+        "WIS": { "type": "integer", "minimum": 1, "maximum": 10 },
+        "CHA": { "type": "integer", "minimum": 1, "maximum": 10 }
+      }
+    },
+    "competencies": {
+      "type": "object",
+      "properties": {
+        "knowledge": { "type": "array", "items": { "type": "string" } },
+        "craft": { "type": "array", "items": { "type": "string" } },
+        "profession": { "type": "array", "items": { "type": "string" } },
+        "special_training": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "worldbuilding_101": {
+      "type": "object",
+      "required": ["core_motivation", "everyday_life", "off_screen_life", "personal_history"],
+      "properties": {
+        "core_motivation": { "type": "string" },
+        "everyday_life": { "type": "string" },
+        "off_screen_life": { "type": "string" },
+        "personal_history": { "type": "string" },
+        "anchor_props": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "psychology": {
+      "type": "object",
+      "properties": {
+        "social_mask": { "type": "string" },
+        "self_deception": { "type": "string" },
+        "nuclear_desire_or_wound": { "type": "string" },
+        "active_paradox": {
+          "type": "object",
+          "properties": {
+            "spoken_dialogue": { "type": "string" },
+            "body_betrayal": { "type": "string" },
+            "hidden_thought": { "type": "string" }
+          }
+        },
+        "asymmetric_secret": { "type": "string" },
+        "autonomous_scene_agenda": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "biometrics_and_voice": {
+      "type": "object",
+      "properties": {
+        "height_cm": { "type": "number" },
+        "weight_kg": { "type": "number" },
+        "appearance_summary": { "type": "string" },
+        "posture_and_gait": { "type": "string" },
+        "scent_and_marks": { "type": "string" },
+        "signature_wardrobe": { "type": "array", "items": { "type": "string" } },
+        "vocal_fingerprint": { "type": "string" }
+      }
+    },
+    "intimate_module": {
+      "type": "object",
+      "description": "Capa dinámica opcional (visible/exportada cuando mode = explicit)",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "experience_status": { "type": "string" },
+        "anatomy_and_sensory": { "type": "string" },
+        "core_fantasies_and_fetishes": { "type": "array", "items": { "type": "string" } },
+        "solo_habits": { "type": "string" },
+        "post_climax_ritual": { "type": "string" },
+        "progression_stages": {
+          "type": "object",
+          "properties": {
+            "initial_control_pct": { "type": "integer", "minimum": 0, "maximum": 100 },
+            "stage_1_barrier": { "type": "string" },
+            "stage_2_fissure": { "type": "string" },
+            "stage_3_double_standard": { "type": "string" },
+            "stage_4_surrender": { "type": "string" }
+          }
+        },
+        "regression_triggers": { "type": "array", "items": { "type": "string" } },
+        "hard_locks": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "rpg_statblock": {
+      "type": "object",
+      "description": "Bloque de estadísticas tácticas opcional (Módulo Capa RPG)",
+      "properties": {
+        "level": { "type": "integer", "minimum": 1 },
+        "class_or_archetype": { "type": "string" },
+        "hp": { "type": "integer" },
+        "max_hp": { "type": "integer", "minimum": 0 },
+        "ac": { "type": "integer" },
+        "speed": { "type": "string" },
+        "initiative_bonus": { "type": "integer" },
+        "proficiency_bonus": { "type": "integer" },
+        "attacks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "bonus", "damage"],
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "bonus": { "type": "string" },
+              "damage": { "type": "string" },
+              "notes": { "type": "string" }
+            }
+          }
+        },
+        "abilities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "description"],
+            "properties": {
+              "name": { "type": "string" },
+              "description": { "type": "string" }
+            }
+          }
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "current", "max"],
+            "properties": {
+              "name": { "type": "string" },
+              "current": { "type": "integer" },
+              "max": { "type": "integer" }
+            }
+          }
+        },
+        "notes": { "type": "string" }
+      }
+    },
+    "theory_of_mind": {
+      "type": "array",
+      "description": "Matriz de conocimiento y secretos asimétricos sobre otros personajes",
+      "items": {
+        "type": "object",
+        "required": ["target_id", "knows"],
+        "properties": {
+          "target_id": { "type": "string" },
+          "target_name": { "type": "string" },
+          "knows": { "type": "array", "items": { "type": "string" } },
+          "suspects": { "type": "array", "items": { "type": "string" } },
+          "hides": { "type": "array", "items": { "type": "string" } },
+          "misconception": { "type": "string" }
+        }
+      }
+    },
+    "communication_modes": {
+      "type": "array",
+      "description": "Canales de comunicación verbal y no verbal del personaje",
+      "items": {
+        "type": "object",
+        "required": ["mode"],
+        "properties": {
+          "mode": { "type": "string" },
+          "range": { "type": "string" },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "traits": {
+      "type": "array",
+      "description": "Slugs de rasgos asociados al personaje",
+      "items": { "type": "string" }
+    }
+  }
+}

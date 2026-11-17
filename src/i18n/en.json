@@ -1,0 +1,232 @@
+{
+  "app": {
+    "title": "LoreForge Studio",
+    "subtitle": "Offline-first worldbuilding, character master, and modular narrative studio",
+    "demoReset": "Restore sample world"
+  },
+  "nav": {
+    "dashboard": "Overview",
+    "pj": "Character Sheet",
+    "world": "World Bible",
+    "worlds": "Worlds",
+    "gallery": "Gallery",
+    "doc": "Document",
+    "relations": "Relations",
+    "graph": "Graph",
+    "timeline": "Timeline",
+    "maps": "Maps",
+    "contradictions": "Contradictions",
+    "rpg": "RPG Layer",
+    "kanban": "Scenes",
+    "calendar": "Calendar",
+    "player": "Player View",
+    "tom": "Theory of Mind",
+    "cmdKPlaceholder": "Search entity, view, or command...",
+    "more": "More"
+  },
+  "themes": {
+    "pergamino": "Parchment",
+    "grimorio": "Grimoire",
+    "dossier": "Dossier",
+    "cyberpunk": "Tactical HUD"
+  },
+  "topbar": {
+    "searchPlaceholder": "Search or jump to [[entity]]...",
+    "themeLabel": "Theme",
+    "langLabel": "Language",
+    "fileSave": "Save .json",
+    "fileOpen": "Open file",
+    "fileLinked": "Linked file",
+    "fileReconnect": "Reconnect file",
+    "fileUnlinked": "No local file",
+    "importBtn": "Import",
+    "exportBtn": "Export / Compile"
+  },
+  "tree": {
+    "filterPlaceholder": "Filter archive...",
+    "folderNote": "Folder note",
+    "addItem": "Add entry",
+    "categories": {
+      "chapters": "Chapters",
+      "lore_entries": "Lore Notes",
+      "characters": "Characters",
+      "locations": "Locations / Geography",
+      "events": "Events",
+      "political_groups": "Politics & Ideologies",
+      "factions": "Organizations / Factions",
+      "religious_groups": "Religion & Beliefs",
+      "magic_groups": "Magic & Arcane",
+      "tech_groups": "Science & Technology",
+      "species": "Species / Lineages",
+      "items": "Items & Relics",
+      "languages": "Languages",
+      "currencies": "Currencies",
+      "myths": "Myths & Legends",
+      "relations": "Relations (World)"
+    }
+  },
+  "dashboard": {
+    "title": "World Overview",
+    "stats": {
+      "characters": "Characters",
+      "archiveDocs": "Archive entries",
+      "relations": "Relations",
+      "words": "Words written",
+      "contradictions": "Consistency alerts"
+    },
+    "quickActions": "Quick actions"
+  },
+  "pj": {
+    "tabs": {
+      "all": "All",
+      "identidad": "Identity",
+      "rpg": "Attributes & RPG",
+      "wb": "Worldbuilding 101",
+      "psico": "Psychology",
+      "intimo": "Intimate Layer"
+    },
+    "status": {
+      "label": "Vital status",
+      "alive": "Alive",
+      "deceased": "Deceased",
+      "missing": "Missing",
+      "unknown": "Unknown"
+    },
+    "deathOrder": "Death order in timeline",
+    "identity": "Identity & lineage",
+    "attributes": "Base attributes",
+    "tiers": {
+      "tier1": "Very low",
+      "tier2": "Limited",
+      "tier3": "Average",
+      "tier4": "Notable",
+      "tier5": "Exceptional"
+    },
+    "competencies": "Competencies",
+    "wb101": "Worldbuilding 101",
+    "psychology": "Psychology & mask",
+    "activeParadox": "Active paradox",
+    "biometrics": "Biometrics & voice",
+    "variants": "Draft variants",
+    "portraitModal": "Adjust portrait"
+  },
+  "world": {
+    "bible": "World Bible",
+    "laws": "Internal laws",
+    "factions": "Factions",
+    "factionColor": "Faction color",
+    "homebrew": {
+      "languages": "Languages",
+      "species": "Species",
+      "traits": "Traits",
+      "commonSelect": "Default common language",
+      "buckets": {
+        "common": "Common",
+        "uncommon": "Uncommon",
+        "rare": "Rare",
+        "secret": "Secret",
+        "unavailable": "Unavailable"
+      }
+    },
+    "loreEntries": "Lore Glossary",
+    "audit": {
+      "title": "Consistency audit",
+      "c1": "No scene violates the physical, magical, or legal rules of the world.",
+      "c2": "Protagonist and antagonist choices follow grounded causality.",
+      "c3": "Every major character has a clear motive and justified competencies.",
+      "c4": "Daily life for an ordinary citizen on an average day is defined.",
+      "c5": "Characters maintain believable routines and circles off-screen.",
+      "c6": "The setting shows layered time and past history."
+    },
+    "modulesTitle": "World Modules"
+  },
+  "modules": {
+    "title": "Optional world modules",
+    "desc": "Enable only the tools this project needs. Disabled modules stay hidden.",
+    "on": "On",
+    "off": "Off",
+    "diceRoller": {
+      "name": "Dice Roller",
+      "desc": "NdS+M roll parser and quick history log."
+    },
+    "rpgStatblocks": {
+      "name": "RPG Statblocks",
+      "desc": "HP, AC, attacks, resources, and tactical abilities per character."
+    },
+    "initiativeTracker": {
+      "name": "Initiative Tracker",
+      "desc": "Combat turn order, hit points, and scene conditions."
+    },
+    "sceneKanban": {
+      "name": "Scene Kanban",
+      "desc": "Narrative progress board (Idea, Draft, Revision, Canon)."
+    },
+    "customCalendar": {
+      "name": "World Calendar",
+      "desc": "Custom months, eras, and days linked to the timeline."
+    },
+    "playerView": {
+      "name": "Player View",
+      "desc": "Presentation mode hiding asymmetric secrets and private notes."
+    },
+    "theoryOfMind": {
+      "name": "Theory of Mind Matrix",
+      "desc": "Cross-reference of what each character knows, suspects, or hides."
+    },
+    "intimateModule": {
+      "name": "Dynamic Intimate Layer",
+      "desc": "Unlocks intimate sheet fields; stays SFW unless explicit mode is toggled."
+    },
+    "explicitToggle": "Explicit mode",
+    "sfwMode": "SFW Mode",
+    "explicitMode": "Explicit Mode"
+  },
+  "views": {
+    "gallery": "Visual gallery",
+    "doc": "Document editor",
+    "relations": "Relations list",
+    "graph": "Interactive graph",
+    "timeline": "Multi-track timeline",
+    "maps": "Nested maps",
+    "contradictions": "Contradiction detector",
+    "rpg": "RPG Suite & Initiative",
+    "kanban": "Kanban board",
+    "calendar": "Custom calendar",
+    "player": "Player view",
+    "tom": "Theory of Mind",
+    "dice": "Dice",
+    "exportBridge": "Export & VTT/RP Bridges",
+    "compiler": "Bible & Manuscript Compiler"
+  },
+  "errors": {
+    "emptyLabel": "Enter a valid name before continuing.",
+    "duplicateSlug": "An entry with key \"{{slug}}\" already exists.",
+    "reservedSlug": "The key \"{{slug}}\" is reserved by the system.",
+    "notFound": "No entry found with key \"{{slug}}\".",
+    "minOneWorld": "At least one active world must remain in the studio.",
+    "invalidJson": "The JSON file does not match a valid LoreForge Studio format.",
+    "fileReadError": "Could not read the selected file.",
+    "quotaExceeded": "Local storage is full. Save your project to a .worldbuilder.json file."
+  },
+  "toasts": {
+    "saved": "Changes saved locally.",
+    "worldCreated": "World \"{{name}}\" created.",
+    "worldDeleted": "World deleted.",
+    "pjCreated": "Character \"{{name}}\" created.",
+    "pjDeleted": "Character deleted.",
+    "docDeleted": "Entry removed from archive.",
+    "langAdded": "Language \"{{label}}\" added.",
+    "speciesAdded": "Species \"{{label}}\" added.",
+    "traitAdded": "Trait \"{{label}}\" added.",
+    "moduleToggled": "Module updated.",
+    "demoReloaded": "Sample world restored.",
+    "imported": "Data imported successfully."
+  },
+  "a11y": {
+    "openMenu": "Open sidebar menu",
+    "closeModal": "Close dialog",
+    "dragHandle": "Drag to reorder or move",
+    "primaryNav": "Primary navigation",
+    "mobileNav": "Bottom navigation bar"
+  }
+}

@@ -1,0 +1,348 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://miescritura.local/schemas/world-master.schema.json",
+  "title": "World Master Schema (Biblia + Homebrew Elements estilo FoundryVTT)",
+  "type": "object",
+  "required": ["id", "name", "genre_tone", "internal_laws", "factions", "homebrew"],
+  "properties": {
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "system_tag": { "type": "string", "description": "Sistema o marco narrativo del mundo (ej. narrativa-oscura, pf2e, d20-generico)" },
+    "cover_gradient": { "type": "string" },
+    "pixel_banner": {
+      "type": ["string", "object"],
+      "description": "Configuración de banner visual determinista para la cabecera del mundo",
+      "properties": {
+        "seed": { "type": "string" },
+        "palette": { "type": "array", "items": { "type": "string" } },
+        "style": { "type": "string", "enum": ["waves", "peaks", "grid", "constellation"] }
+      }
+    },
+    "last_edited": { "type": "string" },
+    "modules": {
+      "type": "object",
+      "description": "Módulos opcionales activables por mundo (apagados por defecto salvo escritura)",
+      "properties": {
+        "diceRoller": { "type": "boolean" },
+        "rpgStatblocks": { "type": "boolean" },
+        "initiativeTracker": { "type": "boolean" },
+        "sceneKanban": { "type": "boolean" },
+        "customCalendar": { "type": "boolean" },
+        "playerView": { "type": "boolean" },
+        "theoryOfMind": { "type": "boolean" },
+        "intimateModule": { "type": "boolean" }
+      }
+    },
+    "genre_tone": { "type": "string" },
+    "internal_laws": { "type": "array", "items": { "type": "string" } },
+    "factions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "type", "details"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "details": { "type": "string" },
+          "color": { "type": "string", "description": "Color hexadecimal o token de facción para grafo y timeline" }
+        }
+      }
+    },
+    "everyday_life": { "type": "string" },
+    "economy_and_taboos": { "type": "string" },
+    "history_timeline": { "type": "string" },
+    "systems_and_limits": { "type": "string" },
+    "lore_entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["term", "keys", "content"],
+        "properties": {
+          "term": { "type": "string" },
+          "keys": { "type": "string" },
+          "content": { "type": "string" }
+        }
+      }
+    },
+    "homebrew": {
+      "type": "object",
+      "required": ["languages", "species", "traits"],
+      "properties": {
+        "languages": {
+          "type": "object",
+          "required": ["commonLanguage", "registered", "uncommon", "rare", "secret", "unavailable"],
+          "properties": {
+            "commonLanguage": { "type": ["string", "null"] },
+            "registered": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["slug", "label"],
+                "properties": {
+                  "slug": { "type": "string" },
+                  "label": { "type": "string" },
+                  "custom": { "type": "boolean" }
+                }
+              }
+            },
+            "uncommon": { "type": "array", "items": { "type": "string" } },
+            "rare": { "type": "array", "items": { "type": "string" } },
+            "secret": { "type": "array", "items": { "type": "string" } },
+            "unavailable": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "species": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["slug", "label", "notes"],
+            "properties": {
+              "slug": { "type": "string" },
+              "label": { "type": "string" },
+              "notes": { "type": "string" }
+            }
+          }
+        },
+        "traits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["slug", "label", "category"],
+            "properties": {
+              "slug": { "type": "string" },
+              "label": { "type": "string" },
+              "category": { "type": "string" }
+            }
+          }
+        },
+        "trait_propagations": {
+          "type": "object",
+          "description": "Diccionario declarativo de propagación de rasgos entre taxonomías",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "archive": {
+      "type": "object",
+      "description": "Categorías documentales estilo Fantasia Archive",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["id", "title", "summary"],
+          "properties": {
+            "id": { "type": "string" },
+            "title": { "type": "string" },
+            "subtitle": { "type": "string" },
+            "summary": { "type": "string" },
+            "tags": { "type": "array", "items": { "type": "string" } },
+            "body_markdown": { "type": "string", "description": "Cuerpo completo en Markdown (capítulos y documentos)" },
+            "is_folder_note": { "type": "boolean" },
+            "pixel_banner": {
+              "type": ["string", "object"],
+              "properties": {
+                "seed": { "type": "string" },
+                "palette": { "type": "array", "items": { "type": "string" } },
+                "style": { "type": "string", "enum": ["waves", "peaks", "grid", "constellation"] }
+              }
+            },
+            "updated_at": { "type": "string" },
+            "parent_id": { "type": ["string", "null"] }
+          }
+        }
+      }
+    },
+    "folder_notes": {
+      "type": "object",
+      "description": "Notas de carpeta en Markdown indexadas por clave de categoría del archivo",
+      "additionalProperties": {
+        "type": ["string", "object"],
+        "properties": {
+          "title": { "type": "string" },
+          "body_markdown": { "type": "string" },
+          "pixel_banner": {
+            "type": ["string", "object"],
+            "properties": {
+              "seed": { "type": "string" },
+              "palette": { "type": "array", "items": { "type": "string" } },
+              "style": { "type": "string", "enum": ["waves", "peaks", "grid", "constellation"] }
+            }
+          }
+        }
+      }
+    },
+    "relations": {
+      "type": "array",
+      "description": "Ramo único de relaciones del mundo",
+      "items": {
+        "type": "object",
+        "required": ["id", "from", "relation", "to"],
+        "properties": {
+          "id": { "type": "string" },
+          "from": { "type": "string" },
+          "relation": { "type": "string" },
+          "to": { "type": "string" },
+          "notes": { "type": "string" },
+          "from_id": { "type": "string" },
+          "to_id": { "type": "string" },
+          "color": { "type": "string" },
+          "bidirectional": { "type": "boolean" },
+          "faction_tag": { "type": "string" },
+          "strength": { "type": "integer", "minimum": 1, "maximum": 5 }
+        }
+      }
+    },
+    "graph_layout": {
+      "type": "object",
+      "description": "Estado de disposición del grafo visual de relaciones",
+      "properties": {
+        "nodes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["x", "y"],
+            "properties": {
+              "x": { "type": "number" },
+              "y": { "type": "number" },
+              "pinned": { "type": "boolean" }
+            }
+          }
+        },
+        "zoom": { "type": "number" },
+        "panX": { "type": "number" },
+        "panY": { "type": "number" }
+      }
+    },
+    "audit": { "type": "object" },
+    "timeline_events": {
+      "type": "array",
+      "description": "Eventos cronológicos multi-track por facción, personaje o arco",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "order", "track"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "date_label": { "type": "string" },
+          "order": { "type": "number" },
+          "duration": { "type": "number", "minimum": 0 },
+          "track": { "type": "string" },
+          "faction_id": { "type": "string" },
+          "character_ids": { "type": "array", "items": { "type": "string" } },
+          "location_id": { "type": "string" },
+          "summary": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "maps": {
+      "type": "array",
+      "description": "Mapas interactivos anidados (Continente -> Ciudad -> Mazmorra) con pines arrastrables",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "level", "image_src", "pins"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "level": { "type": "string", "enum": ["continent", "region", "city", "dungeon"] },
+          "parent_map_id": { "type": ["string", "null"] },
+          "image_src": { "type": "string" },
+          "asset_id": { "type": "string" },
+          "description": { "type": "string" },
+          "pins": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "label", "x_pct", "y_pct"],
+              "properties": {
+                "id": { "type": "string" },
+                "label": { "type": "string" },
+                "x_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+                "y_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+                "kind": { "type": "string", "enum": ["location", "event", "portal", "danger"] },
+                "notes": { "type": "string" },
+                "linked_location_id": { "type": "string" },
+                "linked_event_id": { "type": "string" },
+                "child_map_id": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "calendar": {
+      "type": "object",
+      "description": "Calendario personalizado del mundo",
+      "properties": {
+        "name": { "type": "string" },
+        "era": { "type": "string" },
+        "current_year": { "type": "integer" },
+        "current_month_idx": { "type": "integer", "minimum": 0 },
+        "current_day": { "type": "integer", "minimum": 1 },
+        "weekdays": { "type": "array", "items": { "type": "string" } },
+        "months": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "days"],
+            "properties": {
+              "name": { "type": "string" },
+              "days": { "type": "integer", "minimum": 1 }
+            }
+          }
+        }
+      }
+    },
+    "scenes_kanban": {
+      "type": "array",
+      "description": "Tarjetas del tablero Kanban de escenas y campaña",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "column"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "column": { "type": "string", "enum": ["idea", "draft", "revision", "canon"] },
+          "summary": { "type": "string" },
+          "arc": { "type": "string" },
+          "chapter_id": { "type": "string" },
+          "character_ids": { "type": "array", "items": { "type": "string" } },
+          "location_id": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "order": { "type": "number" }
+        }
+      }
+    },
+    "initiative_encounter": {
+      "type": "object",
+      "description": "Estado del rastreador de iniciativa (Módulo Iniciativa)",
+      "properties": {
+        "round": { "type": "integer", "minimum": 1 },
+        "active_index": { "type": "integer", "minimum": 0 },
+        "active": { "type": "boolean" },
+        "combatants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "initiative", "hp_current", "hp_max", "ac", "conditions"],
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "pj_id": { "type": "string" },
+              "initiative": { "type": "number" },
+              "hp_current": { "type": "integer" },
+              "hp_max": { "type": "integer" },
+              "ac": { "type": "integer" },
+              "conditions": { "type": "array", "items": { "type": "string" } },
+              "is_npc": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

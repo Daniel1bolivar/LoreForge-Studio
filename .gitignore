@@ -1,0 +1,13 @@
+node_modules/
+dist/
+private/
+playwright-report/
+test-results/
+.DS_Store
+Thumbs.db
+android/.gradle/
+android/build/
+android/app/build/
+*.local
+.env
+.env.*
