@@ -21,6 +21,7 @@
     "calendar": "Calendario",
     "player": "Vista Jugador",
     "tom": "Teoría de la Mente",
+    "export": "Compilador & VTT",
     "cmdKPlaceholder": "Buscar entidad, vista o comando...",
     "more": "Más"
   },
@@ -74,7 +75,34 @@
       "words": "Palabras escritas",
       "contradictions": "Alertas de coherencia"
     },
-    "quickActions": "Accesos rápidos"
+    "quickActions": "Accesos rápidos",
+    "attention": "Alertas que requieren atención",
+    "seeAll": "Ver todas las alertas",
+    "actions": {
+      "pj": "Explorar y redactar personajes",
+      "graph": "Grafo de relaciones canvas",
+      "timeline": "Cronología multitrack",
+      "maps": "Atlas y mapas interactivos",
+      "chapters": "Organización de manuscrito",
+      "contradictions": "Alertas de coherencia",
+      "export": "Compilar a PDF, EPUB o VTT",
+      "kanban": "Tablero visual de escenas",
+      "calendar": "Calendario de fantasía",
+      "rpg": "Mesa de combate e iniciativa",
+      "tom": "Matriz de información y secretos",
+      "player": "Vista sin spoilers"
+    }
+  },
+  "contra": {
+    "deadActing": "{{name}} actúa en \"{{event}}\" ({{date}}) después de su fallecimiento.",
+    "overlap": "Conflicto temporal entre \"{{a}}\" y \"{{b}}\" en la pista {{track}}.",
+    "eventLocation": "El evento \"{{event}}\" referencia un lugar no registrado.",
+    "eventCharacter": "El evento \"{{event}}\" referencia un personaje no registrado.",
+    "orphanFaction": "La facción \"{{name}}\" no tiene personajes asignados.",
+    "unknownLanguage": "{{name}} habla un idioma no registrado: {{language}}.",
+    "unknownSpecies": "{{name}} pertenece a una especie no registrada: {{species}}.",
+    "orphanLanguage": "El idioma {{language}} no tiene hablantes registrados.",
+    "danglingRelation": "La relación \"{{relation}}\" tiene un extremo huérfano: {{name}}."
   },
   "pj": {
     "tabs": {
@@ -194,6 +222,7 @@
     "calendar": "Calendario personalizado",
     "player": "Vista Jugador",
     "tom": "Teoría de la Mente",
+    "export": "Compilador & VTT",
     "dice": "Dados",
     "exportBridge": "Exportar y Puentes VTT/RP",
     "compiler": "Compilador de Biblia y Manuscrito"

@@ -21,6 +21,7 @@
     "calendar": "Calendar",
     "player": "Player View",
     "tom": "Theory of Mind",
+    "export": "Compiler & VTT",
     "cmdKPlaceholder": "Search entity, view, or command...",
     "more": "More"
   },
@@ -74,7 +75,34 @@
       "words": "Words written",
       "contradictions": "Consistency alerts"
     },
-    "quickActions": "Quick actions"
+    "quickActions": "Quick actions",
+    "attention": "Alerts Requiring Attention",
+    "seeAll": "View all alerts",
+    "actions": {
+      "pj": "Browse and edit characters",
+      "graph": "Interactive canvas graph",
+      "timeline": "Multi-track chronology",
+      "maps": "Interactive maps and pins",
+      "chapters": "Manuscript chapters",
+      "contradictions": "Coherence detector",
+      "export": "Compile to PDF, EPUB, or VTT",
+      "kanban": "Visual scenes board",
+      "calendar": "Custom fantasy calendar",
+      "rpg": "RPG combat & initiative",
+      "tom": "Theory of Mind matrix",
+      "player": "Spoiler-free player view"
+    }
+  },
+  "contra": {
+    "deadActing": "{{name}} acts in \"{{event}}\" ({{date}}) after confirmed death.",
+    "overlap": "Timeline overlap between \"{{a}}\" and \"{{b}}\" on track {{track}}.",
+    "eventLocation": "Event \"{{event}}\" references a missing location.",
+    "eventCharacter": "Event \"{{event}}\" references an unregistered character.",
+    "orphanFaction": "Faction \"{{name}}\" has no characters assigned.",
+    "unknownLanguage": "{{name}} speaks unregistered language: {{language}}.",
+    "unknownSpecies": "{{name}} belongs to unregistered species: {{species}}.",
+    "orphanLanguage": "Language {{language}} has no registered speakers.",
+    "danglingRelation": "Relation \"{{relation}}\" has unresolved endpoint: {{name}}."
   },
   "pj": {
     "tabs": {
@@ -195,6 +223,7 @@
     "player": "Player view",
     "tom": "Theory of Mind",
     "dice": "Dice",
+    "export": "Compiler & VTT",
     "exportBridge": "Export & VTT/RP Bridges",
     "compiler": "Bible & Manuscript Compiler"
   },

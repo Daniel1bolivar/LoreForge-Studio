@@ -95,7 +95,7 @@ function normalizeState(raw: Partial<AppState>): AppState {
       : worldPjs[0]?.id || '';
 
   const normalized: AppState = {
-    theme: raw.theme || 'pergamino',
+    theme: raw.theme || 'cyberpunk',
     locale: raw.locale === 'en' ? 'en' : 'es',
     rpgMode: Boolean(raw.rpgMode),
     explicitMode: Boolean(raw.explicitMode),

@@ -8,6 +8,8 @@ import {
   toggleRpgMode,
   setGalleryCategory
 } from '../state/store';
+import { t } from '../i18n';
+import { TREE_CATEGORIES } from '../state/defaults';
 import { h } from './dom';
 import { icon } from './icons';
 import { openCommandPalette } from './palette';
@@ -183,23 +185,29 @@ function renderSidebar(state: any, world: any, characters: any[]): HTMLElement {
     h('div', { style: 'font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:6px; padding:0 4px;' }, ['Árbol de Documentos'])
   ]);
 
-  const categories = Object.keys(world.categories || {});
-  categories.forEach((catKey) => {
-    const docs = world.categories[catKey] || [];
-    const isPjCat = catKey === 'personajes';
-    const count = isPjCat ? characters.length : docs.length;
+  TREE_CATEGORIES.forEach((cat) => {
+    let count = 0;
+    if (cat.kind === 'pjs') count = characters.length;
+    else if (cat.kind === 'archive') count = (world.archive?.[cat.key as any] || []).length;
+    else if (cat.kind === 'lore') count = (world.lore_entries || []).length;
+    else if (cat.kind === 'factions') count = (world.factions || []).length;
+    else if (cat.kind === 'species') count = (world.homebrew?.species || []).length;
+    else if (cat.kind === 'languages') count = (world.homebrew?.languages?.registered || []).length;
+    else if (cat.kind === 'relations') count = (world.relations || []).length;
+
+    const isActive = state.activeView === 'gallery' && state.activeGalleryCat === cat.key;
 
     const catHeader = h('div', {
-      class: 'tree-cat-header',
-      style: 'display:flex; justify-content:space-between; align-items:center; padding:6px 8px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; color:var(--text-secondary);',
+      class: `tree-cat-header ${isActive ? 'tree-cat-active' : ''}`,
+      style: `display:flex; justify-content:space-between; align-items:center; padding:7px 10px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:${isActive ? '700' : '500'}; color:${isActive ? 'var(--text-primary)' : 'var(--text-secondary)'}; background:${isActive ? 'var(--surface-elevated)' : 'transparent'}; border-left:${isActive ? '3px solid var(--accent-primary)' : '3px solid transparent'};`,
       onclick: () => {
-        setGalleryCategory(catKey);
+        setGalleryCategory(cat.key);
         setView('gallery');
       }
     }, [
-      h('div', { style: 'display:flex; align-items:center; gap:6px;' }, [
-        icon(isPjCat ? 'user' : 'folder', 14),
-        document.createTextNode(catKey.charAt(0).toUpperCase() + catKey.slice(1))
+      h('div', { style: 'display:flex; align-items:center; gap:8px;' }, [
+        icon(cat.iconKey, 14),
+        document.createTextNode(t(cat.labelKey) || cat.key)
       ]),
       h('span', { class: 'badge', style: 'font-size:10px;' }, [String(count)])
     ]);

@@ -1,5 +1,6 @@
 // LoreForge Studio — Application Entry Point
 import './styles/tokens.css';
+import './styles/layout.css';
 import { initStore, subscribe } from './state/store';
 
 import { renderAppShell } from './ui/shell';

@@ -1068,7 +1068,7 @@ export function buildDemoSeedData(): AppState {
   ];
 
   return {
-    theme: 'pergamino',
+    theme: 'cyberpunk',
     locale: 'es',
     rpgMode: false,
     explicitMode: false,
