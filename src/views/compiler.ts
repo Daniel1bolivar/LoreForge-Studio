@@ -43,6 +43,27 @@ export function renderCompilerView(): HTMLElement {
       h('button', {
         class: 'btn btn-primary',
         onclick: () => {
+          const exportEnvelope = {
+            schema_version: '2.0.0',
+            saved_at: new Date().toISOString(),
+            state: {
+              theme: appStore.getState().theme,
+              rpgMode: appStore.getState().rpgMode,
+              explicitMode: appStore.getState().explicitMode,
+              activeWorldId: world.id,
+              activePjId: activePj?.id || characters[0]?.id || '',
+              worlds: [world],
+              pjs: characters
+            }
+          };
+          const slug = world.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'mundo';
+          downloadFile(JSON.stringify(exportEnvelope, null, 2), `${slug}.worldbuilder.json`, 'application/json');
+          toast(`Proyecto "${world.name}" exportado con éxito (${characters.length} PJs)`);
+        }
+      }, [icon('download', 16), document.createTextNode('Exportar Mundo Completo (.json)')]),
+      h('button', {
+        class: 'btn btn-secondary',
+        onclick: () => {
           const res = compileMarkdown(world, characters, defaultCompileOpts);
           downloadFile(res, `${world.name}-manuscrito.md`, 'text/markdown');
           toast('Manuscrito Markdown descargado con éxito');

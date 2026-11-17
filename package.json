@@ -15,6 +15,8 @@
     "typecheck": "tsc --noEmit",
     "test": "node tests/unit/validate-schemas.mjs && node tests/unit/test-ui-css.mjs",
     "test:css": "node tests/unit/test-ui-css.mjs",
+    "cap:sync": "cap sync android",
+    "cap:build": "npm run build && cap sync android",
     "validate:schemas": "node tests/unit/validate-schemas.mjs",
     "test:e2e": "playwright test"
   },
@@ -25,5 +27,10 @@
     "typescript": "^5.9.3",
     "vite": "^8.3.8",
     "vite-plugin-singlefile": "^2.3.4"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/cli": "^8.6.2",
+    "@capacitor/core": "^8.6.2"
   }
 }
