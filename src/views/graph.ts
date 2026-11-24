@@ -46,16 +46,42 @@ function saveCustomGroups(worldId: string, groups: DiagramGroup[]): void {
   }
 }
 
+type GraphTheme = 'limpio' | 'fantasia' | 'detective';
+type GraphMode = 'list' | 'canvas';
+
+function loadGraphTheme(): GraphTheme {
+  try {
+    const val = localStorage.getItem('lf_graph_theme');
+    if (val === 'fantasia' || val === 'detective' || val === 'limpio') return val;
+  } catch {
+    // Ignore storage errors
+  }
+  return 'limpio';
+}
+
+function saveGraphTheme(theme: GraphTheme): void {
+  try {
+    localStorage.setItem('lf_graph_theme', theme);
+  } catch {
+    // Ignore storage errors
+  }
+}
+
 export function renderGraphView(): HTMLElement {
   const world = appStore.getActiveWorld();
   const characters = appStore.getCharactersForWorld(world.id);
   const relations = world.relations || [];
   let customGroups = loadCustomGroups(world.id);
+  let graphTheme: GraphTheme = loadGraphTheme();
+  let viewMode: GraphMode = window.innerWidth <= 768 ? 'list' : 'canvas';
 
-  const savedLayout = world.graph_layout || { nodes: {}, zoom: 0.78, panX: 30, panY: 20 };
-  let zoom = savedLayout.zoom || 0.78;
-  let panX = savedLayout.panX ?? 30;
-  let panY = savedLayout.panY ?? 20;
+  const savedLayout = world.graph_layout || { nodes: {}, zoom: 0.72, panX: 30, panY: 75 };
+  // Detect legacy circular coordinates (e.g. nodes overlapping the y < 200 header zone)
+  const savedCoords = Object.values(savedLayout.nodes || {});
+  const hasLegacyOverlap = savedCoords.some((p) => p.y < 195);
+  let zoom = hasLegacyOverlap ? 0.72 : (savedLayout.zoom || 0.72);
+  let panX = hasLegacyOverlap ? 30 : (savedLayout.panX ?? 30);
+  let panY = hasLegacyOverlap ? 75 : (savedLayout.panY ?? 75);
   let isPanning = false;
   let startX = 0;
   let startY = 0;
@@ -73,7 +99,7 @@ export function renderGraphView(): HTMLElement {
     characters.forEach((pj, idx) => {
       const pjId = pj.id || `pj_${idx}`;
       const isPrincipal = auto.principals.has(pjId);
-      const saved = savedLayout.nodes?.[pjId];
+      const saved = !hasLegacyOverlap ? savedLayout.nodes?.[pjId] : undefined;
       const fallback = auto.positions[pjId] || { x: 400 + (idx % 5) * 180, y: 260 + Math.floor(idx / 5) * 190 };
       const customGrp = customGroups.find((g) => g.memberIds.includes(pjId));
       const faction = (pj.identity.deity_creed || '').trim() || 'Independiente';
@@ -101,7 +127,6 @@ export function renderGraphView(): HTMLElement {
 
   const svg = svgEl('svg', {
     class: 'graph-canvas',
-    style: 'width:100%; height:100%; cursor:grab; background:radial-gradient(circle at 30% 20%, #141724 0%, #090a0f 100%);',
   });
 
   // SVG Defs (arrow markers + clip paths)
@@ -129,8 +154,9 @@ export function renderGraphView(): HTMLElement {
   const gGroups = svgEl('g');
   const gLinks = svgEl('g');
   const gNodes = svgEl('g');
+  const gLabels = svgEl('g');
 
-  gRoot.append(gHeaderLegend, gGroups, gLinks, gNodes);
+  gRoot.append(gHeaderLegend, gGroups, gLinks, gNodes, gLabels);
   svg.appendChild(gRoot);
 
   function updateTransform(): void {
@@ -158,18 +184,18 @@ export function renderGraphView(): HTMLElement {
     gHeaderLegend.innerHTML = '';
 
     // Editorial Poster Title
-    const titleGroup = svgEl('g', { transform: 'translate(36, 36)' });
+    const titleGroup = svgEl('g', { transform: 'translate(40, 26)' });
     const k = svgEl('text', { x: 0, y: 12, fill: '#38bdf8', 'font-size': 11, 'font-weight': 700, 'letter-spacing': '0.18em' });
     k.textContent = `${world.name.toUpperCase()} · NEXUS`;
-    const tMain = svgEl('text', { x: 0, y: 46, fill: '#f8fafc', 'font-size': 32, 'font-weight': 800, 'font-family': 'Georgia, serif' });
+    const tMain = svgEl('text', { x: 0, y: 46, fill: '#f8fafc', 'font-size': 30, 'font-weight': 800, 'font-family': 'Georgia, serif' });
     tMain.textContent = 'Character Correlation Diagram';
     const subPill = svgEl('rect', { x: 0, y: 58, width: 320, height: 22, rx: 4, fill: '#1e293b', stroke: '#334155' });
     const subText = svgEl('text', { x: 10, y: 73, fill: '#cbd5e1', 'font-size': 11, 'font-weight': 600 });
     subText.textContent = `${characters.length} personajes · ${relations.length} vínculos ortogonales`;
     titleGroup.append(k, tMain, subPill, subText);
 
-    // Top-Left Legend Box
-    const leg = svgEl('g', { transform: 'translate(380, 28)' });
+    // Top-Left Legend Box (clear spacing to the right of title)
+    const leg = svgEl('g', { transform: 'translate(485, 22)' });
     leg.appendChild(svgEl('rect', { x: 0, y: 0, width: 520, height: 74, rx: 8, fill: 'rgba(15, 23, 42, 0.85)', stroke: '#334155' }));
 
     const items: Array<{ x: number; y: number; color: string; label: string; kind: 'double' | 'solid' | 'dashed' | 'arrow' }> = [
@@ -220,6 +246,7 @@ export function renderGraphView(): HTMLElement {
     gGroups.innerHTML = '';
     gLinks.innerHTML = '';
     gNodes.innerHTML = '';
+    gLabels.innerHTML = '';
 
     const activeSet = getActiveFilterSet();
 
@@ -239,12 +266,11 @@ export function renderGraphView(): HTMLElement {
         'stroke-opacity': '0.45',
         'stroke-width': 1.5,
       }));
-      // Group tab header
-      const tabW = Math.min(box.width - 16, Math.max(120, box.name.length * 8 + 24));
+      // Group tab header (uses exact tabWidth so long names never overflow)
       g.appendChild(svgEl('rect', {
         x: box.x + 12,
         y: box.y - 12,
-        width: tabW,
+        width: box.tabWidth,
         height: 22,
         rx: 6,
         fill: box.color,
@@ -302,10 +328,17 @@ export function renderGraphView(): HTMLElement {
         gEdge.appendChild(svgEl('path', attrs));
       }
 
-      // Label Pill
+      gEdge.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openEditRelationModal(rel);
+      });
+      gLinks.appendChild(gEdge);
+
+      // Label Pill rendered in gLabels (above nodes so never clipped)
       const relLabel = rel.relation || 'Vínculo';
       const pillW = Math.max(54, relLabel.length * 6.8 + 16);
-      gEdge.appendChild(svgEl('rect', {
+      const gPill = svgEl('g', { opacity, style: 'cursor:pointer;' });
+      gPill.appendChild(svgEl('rect', {
         x: labelX - pillW / 2,
         y: labelY - 10,
         width: pillW,
@@ -313,7 +346,7 @@ export function renderGraphView(): HTMLElement {
         rx: 9,
         fill: '#0f172a',
         stroke: style.color,
-        'stroke-width': 1,
+        'stroke-width': 1.2,
       }));
       const lbl = svgEl('text', {
         x: labelX,
@@ -324,14 +357,12 @@ export function renderGraphView(): HTMLElement {
         'text-anchor': 'middle',
       });
       lbl.textContent = relLabel;
-      gEdge.appendChild(lbl);
-
-      gEdge.addEventListener('click', (e) => {
+      gPill.appendChild(lbl);
+      gPill.addEventListener('click', (e) => {
         e.stopPropagation();
         openEditRelationModal(rel);
       });
-
-      gLinks.appendChild(gEdge);
+      gLabels.appendChild(gPill);
     });
 
     // 3. Editorial Rectangular Character Cards
@@ -469,11 +500,13 @@ export function renderGraphView(): HTMLElement {
         if (!connectMode) return;
         if (!connectSourceId) {
           connectSourceId = node.id;
-          toast(`Origen: "${node.name}". Haz clic en otro personaje para unir.`);
+          toast(`Origen: "${node.name}". Toca otro personaje para unir.`);
+          updateConnectBanner();
           redraw();
         } else if (connectSourceId === node.id) {
           connectSourceId = null;
           toast('Selección cancelada.');
+          updateConnectBanner();
           redraw();
         } else {
           const src = nodeMap.get(connectSourceId);
@@ -482,12 +515,13 @@ export function renderGraphView(): HTMLElement {
           connectMode = false;
           connectBtn.classList.remove('btn-primary');
           connectBtn.classList.add('btn-secondary');
+          updateConnectBanner();
           redraw();
           if (src && dst) openCreateRelationModal(src, dst);
         }
       });
 
-      // Drag Node
+      // Drag Node (Pointer Events: works for both mouse and touch)
       let dragging = false;
       let hasMoved = false;
       let sClientX = 0;
@@ -495,8 +529,8 @@ export function renderGraphView(): HTMLElement {
       let origX = node.x;
       let origY = node.y;
 
-      g.addEventListener('mousedown', (e) => {
-        if (connectMode || e.button !== 0) return;
+      g.addEventListener('pointerdown', (e) => {
+        if (connectMode || e.button > 0) return;
         e.stopPropagation();
         dragging = true;
         hasMoved = false;
@@ -505,11 +539,11 @@ export function renderGraphView(): HTMLElement {
         origX = node.x;
         origY = node.y;
 
-        const onMove = (me: MouseEvent) => {
+        const onMove = (me: PointerEvent) => {
           if (!dragging) return;
           const dx = (me.clientX - sClientX) / zoom;
           const dy = (me.clientY - sClientY) / zoom;
-          if (Math.hypot(dx, dy) > 3) hasMoved = true;
+          if (Math.hypot(dx, dy) > 4) hasMoved = true;
           node.x = origX + dx;
           node.y = origY + dy;
           redraw();
@@ -517,12 +551,14 @@ export function renderGraphView(): HTMLElement {
         const onUp = () => {
           if (!dragging) return;
           dragging = false;
-          window.removeEventListener('mousemove', onMove);
-          window.removeEventListener('mouseup', onUp);
+          window.removeEventListener('pointermove', onMove);
+          window.removeEventListener('pointerup', onUp);
+          window.removeEventListener('pointercancel', onUp);
           if (hasMoved) saveLayoutState();
         };
-        window.addEventListener('mousemove', onMove);
-        window.addEventListener('mouseup', onUp);
+        window.addEventListener('pointermove', onMove);
+        window.addEventListener('pointerup', onUp);
+        window.addEventListener('pointercancel', onUp);
       });
 
       g.addEventListener('dblclick', (e) => {
@@ -700,28 +736,30 @@ export function renderGraphView(): HTMLElement {
     const closeModal = openModal('Gestión de Grupos & Facciones', renderBody());
   }
 
-  // Pan & Zoom
-  svg.addEventListener('mousedown', (e) => {
-    if (connectMode) return;
+  // Pan & Zoom (Pointer Events for touch + mouse)
+  svg.addEventListener('pointerdown', (e) => {
+    if (connectMode || e.button > 0) return;
     isPanning = true;
     startX = e.clientX - panX;
     startY = e.clientY - panY;
     svg.style.cursor = 'grabbing';
   });
 
-  window.addEventListener('mousemove', (e) => {
+  window.addEventListener('pointermove', (e) => {
     if (!isPanning) return;
     panX = e.clientX - startX;
     panY = e.clientY - startY;
     updateTransform();
   });
 
-  window.addEventListener('mouseup', () => {
+  const stopPan = () => {
     if (!isPanning) return;
     isPanning = false;
     svg.style.cursor = 'grab';
     saveLayoutState();
-  });
+  };
+  window.addEventListener('pointerup', stopPan);
+  window.addEventListener('pointercancel', stopPan);
 
   svg.addEventListener('wheel', (e) => {
     e.preventDefault();
@@ -729,10 +767,131 @@ export function renderGraphView(): HTMLElement {
     zoom = Math.min(2.5, Math.max(0.25, zoom * factor));
     updateTransform();
     saveLayoutState();
-  });
+  }, { passive: false });
 
   updateTransform();
   redraw();
+
+  function openQuickLinkPickerModal(): void {
+    if (characters.length < 2) {
+      toast('Necesitas al menos 2 personajes para crear un vínculo.');
+      return;
+    }
+    let srcId = characters[0].id || '';
+    let dstId = characters[1].id || '';
+    let relLabel = 'Aliado';
+    let notes = '';
+
+    const content = h('div', { style: 'display:flex; flex-direction:column; gap:14px; padding:18px;' }, [
+      h('div', {}, [
+        h('label', { class: 'field-label', for: 'quick-rel-src' }, ['1. Primer personaje']),
+        h('select', {
+          id: 'quick-rel-src',
+          class: 'input-select',
+          onchange: (e: any) => { srcId = e.target.value; },
+        }, characters.map((p) => h('option', { value: p.id || '' }, [p.identity.name || 'Sin nombre']))),
+      ]),
+      h('div', {}, [
+        h('label', { class: 'field-label', for: 'quick-rel-type' }, ['2. Tipo de relación']),
+        h('select', {
+          id: 'quick-rel-type',
+          class: 'input-select',
+          onchange: (e: any) => { relLabel = e.target.value; },
+        }, [
+          h('option', { value: 'Aliado' }, 'Aliado / Amistad'),
+          h('option', { value: 'Vínculo de Alma' }, 'Vínculo Especial / Pareja'),
+          h('option', { value: 'Enemigo' }, 'Enemigo / Rival'),
+          h('option', { value: 'Mentor y Alumno' }, 'Mentor / Jerarquía'),
+          h('option', { value: 'Familia' }, 'Familia / Sangre'),
+        ]),
+      ]),
+      h('div', {}, [
+        h('label', { class: 'field-label', for: 'quick-rel-dst' }, ['3. Segundo personaje']),
+        h('select', {
+          id: 'quick-rel-dst',
+          class: 'input-select',
+          onchange: (e: any) => { dstId = e.target.value; },
+        }, characters.map((p, idx) => {
+          const opt = h('option', { value: p.id || '' }, [p.identity.name || 'Sin nombre']) as HTMLOptionElement;
+          if (idx === 1) opt.selected = true;
+          return opt;
+        })),
+      ]),
+      h('div', {}, [
+        h('label', { class: 'field-label', for: 'quick-rel-notes' }, ['Notas (opcional)']),
+        h('textarea', {
+          id: 'quick-rel-notes',
+          class: 'input-textarea',
+          rows: 2,
+          placeholder: 'Ej: Se conocieron en la capital...',
+          oninput: (e: any) => { notes = e.target.value; },
+        }),
+      ]),
+      h('div', { style: 'display:flex; justify-content:flex-end; gap:10px; margin-top:4px;' }, [
+        h('button', {
+          class: 'btn btn-primary btn-lg-touch',
+          onclick: () => {
+            if (srcId === dstId) {
+              toast('Elige dos personajes distintos.');
+              return;
+            }
+            const src = characters.find((c) => c.id === srcId);
+            const dst = characters.find((c) => c.id === dstId);
+            if (!src || !dst) return;
+            upsertRelation(world.id, {
+              id: uid('rel'),
+              from: src.identity.name,
+              to: dst.identity.name,
+              from_id: src.id,
+              to_id: dst.id,
+              relation: relLabel,
+              notes: notes.trim(),
+            });
+            toast(`Vínculo "${relLabel}" guardado.`);
+            closeModal();
+          },
+        }, ['Guardar Vínculo']),
+      ]),
+    ]);
+    const closeModal = openModal('Nuevo Vínculo entre Personajes', content);
+  }
+
+  const root = h('div', {
+    class: 'graph-view-container',
+    'data-graph-theme': graphTheme,
+  });
+
+  const connectBanner = h('div', {
+    class: 'graph-connect-banner',
+    style: 'display:none;',
+  });
+
+  const updateConnectBanner = () => {
+    if (!connectMode) {
+      connectBanner.style.display = 'none';
+      return;
+    }
+    connectBanner.style.display = 'flex';
+    const srcName = connectSourceId ? (nodeMap.get(connectSourceId)?.name || '') : '';
+    connectBanner.replaceChildren(
+      h('span', {}, [
+        connectSourceId
+          ? `Paso 2: Toca otro personaje para unir con "${srcName}"`
+          : 'Paso 1: Toca el primer personaje'
+      ]),
+      h('button', {
+        class: 'btn btn-secondary btn-sm',
+        onclick: () => {
+          connectMode = false;
+          connectSourceId = null;
+          connectBtn.classList.remove('btn-primary');
+          connectBtn.classList.add('btn-secondary');
+          updateConnectBanner();
+          redraw();
+        },
+      }, ['Cancelar'])
+    );
+  };
 
   const connectBtn = h('button', {
     class: 'btn btn-secondary btn-sm',
@@ -741,26 +900,127 @@ export function renderGraphView(): HTMLElement {
       connectSourceId = null;
       connectBtn.classList.toggle('btn-primary', connectMode);
       connectBtn.classList.toggle('btn-secondary', !connectMode);
-      toast(connectMode ? 'Modo unir activo: clic en 1.er y 2.º personaje' : 'Modo unir desactivado');
+      updateConnectBanner();
       redraw();
     },
   }, [icon('network', 14), document.createTextNode('Unir Nodos')]) as HTMLButtonElement;
 
   const filterInput = h('input', {
     class: 'input-text',
-    style: 'width:165px; padding:4px 8px; font-size:12px;',
-    placeholder: 'Filtrar personaje...',
+    type: 'search',
+    style: 'width:180px;',
+    placeholder: 'Buscar personaje o vínculo...',
+    'aria-label': 'Buscar personaje o vínculo',
     oninput: (e: any) => {
       filterQuery = e.target.value;
       redraw();
+      renderListCards();
     },
   });
 
-  return h('div', { class: 'graph-view-container', style: 'display:flex; flex-direction:column; width:100%; height:100%; position:relative; overflow:hidden; background:var(--surface-base);' }, [
-    h('div', { class: 'graph-toolbar', style: 'position:absolute; top:12px; left:12px; right:12px; z-index:10; display:flex; gap:8px; background:rgba(20, 20, 25, 0.92); backdrop-filter:blur(8px); padding:8px 12px; border-radius:10px; border:1px solid var(--border-subtle); align-items:center; flex-wrap:wrap; box-shadow:0 4px 16px rgba(0,0,0,0.45);' }, [
-      h('span', { style: 'font-weight:700; font-size:13px; display:flex; align-items:center; gap:6px;' }, [icon('network', 16), document.createTextNode(t('graph.title') || 'Correlation Diagram')]),
-      filterInput,
+  const themeSelect = h('select', {
+    class: 'input-select input-sm',
+    style: 'width:auto; min-width:150px;',
+    'aria-label': 'Estilo visual del tablero',
+    onchange: (e: any) => {
+      graphTheme = e.target.value as GraphTheme;
+      saveGraphTheme(graphTheme);
+      root.setAttribute('data-graph-theme', graphTheme);
+      toast(`Estilo de tablero: ${e.target.options[e.target.selectedIndex].text}`);
+    },
+  }, [
+    h('option', { value: 'limpio' }, ['Estilo: Limpio']),
+    h('option', { value: 'fantasia' }, ['Estilo: Fantasía']),
+    h('option', { value: 'detective' }, ['Estilo: Tablero Detective']),
+  ]);
+  (themeSelect as HTMLSelectElement).value = graphTheme;
+
+  const listPanel = h('div', { class: 'graph-list-panel' });
+  const listCardsWrap = h('div', { style: 'display:flex; flex-direction:column; gap:12px;' });
+
+  function renderListCards(): void {
+    const q = filterQuery.trim().toLowerCase();
+    const filtered = relations.filter((r) => {
+      if (!q) return true;
+      return (
+        (r.from || '').toLowerCase().includes(q) ||
+        (r.to || '').toLowerCase().includes(q) ||
+        (r.relation || '').toLowerCase().includes(q) ||
+        (r.notes || '').toLowerCase().includes(q)
+      );
+    });
+
+    if (filtered.length === 0) {
+      listCardsWrap.replaceChildren(
+        h('div', { class: 'graph-rel-card', style: 'text-align:center; padding:28px 18px;' }, [
+          h('p', { style: 'font-size:16px; font-weight:600; margin-bottom:10px;' }, [
+            q ? 'No se encontraron relaciones con ese filtro.' : 'Todavía no hay relaciones creadas en este mundo.'
+          ]),
+          h('button', {
+            class: 'btn btn-primary btn-lg-touch',
+            style: 'margin:0 auto;',
+            onclick: () => openQuickLinkPickerModal(),
+          }, [icon('plus', 18), document.createTextNode('Crear Primera Relación')]),
+        ])
+      );
+      return;
+    }
+
+    listCardsWrap.replaceChildren(
+      ...filtered.map((rel) =>
+        h('div', { class: 'graph-rel-card' }, [
+          h('div', { class: 'graph-rel-card-head' }, [
+            h('div', { class: 'graph-rel-flow' }, [
+              h('span', {}, [rel.from || 'Sin origen']),
+              h('span', { class: 'graph-rel-badge' }, [rel.relation || 'Vínculo']),
+              h('span', {}, [`→ ${rel.to || 'Sin destino'}`]),
+            ]),
+            h('div', { style: 'display:flex; gap:8px;' }, [
+              h('button', {
+                class: 'btn btn-secondary btn-sm',
+                onclick: () => openEditRelationModal(rel),
+              }, [icon('edit', 14), document.createTextNode('Editar')]),
+              h('button', {
+                class: 'btn btn-danger btn-sm',
+                'aria-label': `Eliminar relación ${rel.from} con ${rel.to}`,
+                onclick: () => {
+                  appStore.mutate((s) => {
+                    const w = s.worlds.find((item) => item.id === world.id);
+                    if (w) w.relations = (w.relations || []).filter((r) => r.id !== rel.id);
+                  });
+                  toast('Vínculo eliminado.');
+                },
+              }, [icon('trash', 14)]),
+            ]),
+          ]),
+          rel.notes ? h('p', { style: 'color:var(--text-secondary); font-size:14px; line-height:1.5;' }, [rel.notes]) : null,
+        ])
+      )
+    );
+  }
+
+  listPanel.append(
+    h('div', { class: 'graph-list-controls' }, [
+      h('button', {
+        class: 'btn btn-primary btn-lg-touch',
+        onclick: () => openQuickLinkPickerModal(),
+      }, [icon('plus', 18), document.createTextNode('Nuevo Vínculo')]),
+      h('button', {
+        class: 'btn btn-secondary',
+        onclick: () => openGroupManagerModal(),
+      }, ['📁 Grupos']),
+    ]),
+    listCardsWrap
+  );
+  renderListCards();
+
+  const canvasWrap = h('div', { class: 'graph-canvas-wrap' }, [
+    h('div', {
+      class: 'graph-toolbar',
+      style: 'display:flex; gap:8px; padding:8px 14px; background:var(--surface-sunken); border-bottom:1px solid var(--border-subtle); align-items:center; flex-wrap:wrap;',
+    }, [
       connectBtn,
+      themeSelect,
       h('button', { class: 'btn btn-secondary btn-sm', onclick: () => openGroupManagerModal() }, ['📁 Grupos']),
       h('button', {
         class: 'btn btn-secondary btn-sm',
@@ -790,12 +1050,61 @@ export function renderGraphView(): HTMLElement {
           }
         },
       }, ['🖼️ Exportar PNG']),
-      h('div', { style: 'display:flex; gap:4px; margin-left:auto;' }, [
-        h('button', { class: 'btn btn-secondary btn-sm', onclick: () => { zoom = Math.min(2.5, zoom * 1.2); updateTransform(); saveLayoutState(); } }, ['+']),
-        h('button', { class: 'btn btn-secondary btn-sm', onclick: () => { zoom = Math.max(0.25, zoom / 1.2); updateTransform(); saveLayoutState(); } }, ['-']),
-        h('button', { class: 'btn btn-secondary btn-sm', onclick: () => { zoom = 0.78; panX = 30; panY = 20; updateTransform(); saveLayoutState(); } }, ['Reset']),
-      ]),
     ]),
+    connectBanner,
     svg,
+    h('div', { class: 'graph-zoom-controls', 'aria-label': 'Controles de zoom del grafo' }, [
+      h('button', {
+        class: 'btn btn-secondary',
+        'aria-label': 'Acercar grafo',
+        onclick: () => { zoom = Math.min(2.5, zoom * 1.2); updateTransform(); saveLayoutState(); },
+      }, ['+']),
+      h('button', {
+        class: 'btn btn-secondary',
+        'aria-label': 'Alejar grafo',
+        onclick: () => { zoom = Math.max(0.25, zoom / 1.2); updateTransform(); saveLayoutState(); },
+      }, ['−']),
+      h('button', {
+        class: 'btn btn-secondary',
+        'aria-label': 'Centrar grafo',
+        onclick: () => { zoom = 0.78; panX = 30; panY = 20; updateTransform(); saveLayoutState(); },
+      }, ['Centrar']),
+    ]),
   ]);
+
+  const tabListBtn = h('button', {
+    type: 'button',
+    class: `graph-mode-tab ${viewMode === 'list' ? 'active' : ''}`,
+    onclick: () => syncMode('list'),
+  }, [icon('file-text', 16), document.createTextNode('Lista Clara')]);
+
+  const tabCanvasBtn = h('button', {
+    type: 'button',
+    class: `graph-mode-tab ${viewMode === 'canvas' ? 'active' : ''}`,
+    onclick: () => syncMode('canvas'),
+  }, [icon('network', 16), document.createTextNode('Lienzo Visual')]);
+
+  function syncMode(next: GraphMode): void {
+    viewMode = next;
+    tabListBtn.classList.toggle('active', next === 'list');
+    tabCanvasBtn.classList.toggle('active', next === 'canvas');
+    listPanel.style.display = next === 'list' ? 'flex' : 'none';
+    canvasWrap.style.display = next === 'canvas' ? 'flex' : 'none';
+  }
+
+  syncMode(viewMode);
+
+  const topBar = h('div', { class: 'graph-top-bar' }, [
+    h('div', { style: 'display:flex; align-items:center; gap:10px; flex-wrap:wrap;' }, [
+      h('span', { style: 'font-weight:700; font-size:16px; display:flex; align-items:center; gap:6px;' }, [
+        icon('network', 18),
+        document.createTextNode(t('graph.title') || 'Relaciones y Grafo'),
+      ]),
+      h('div', { class: 'graph-mode-tabs', role: 'tablist' }, [tabListBtn, tabCanvasBtn]),
+    ]),
+    filterInput,
+  ]);
+
+  root.append(topBar, listPanel, canvasWrap);
+  return root;
 }

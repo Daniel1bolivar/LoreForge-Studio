@@ -32,6 +32,7 @@ export interface GroupBox {
   y: number;
   width: number;
   height: number;
+  tabWidth: number;
 }
 
 export type EdgeCategory = 'special' | 'ally' | 'rival' | 'hierarchy';
@@ -68,7 +69,7 @@ export function getRelationVisualStyle(relationType: string): EdgeStyle {
   if (/alma|amor|pareja|especial|vinculo|vínculo|gemelo|twin|nobody|real form/.test(norm)) {
     return { category: 'special', color: '#f472b6', doubleLine: true, dashed: false, arrow: false };
   }
-  if (/enemigo|rival|sospecha|traic|odio|hostil|amenaza/.test(norm)) {
+  if (/enemigo|rival|sospecha|traic|odio|hostil|amenaza|ejecut/.test(norm)) {
     return { category: 'rival', color: '#f59e0b', doubleLine: false, dashed: true, arrow: true };
   }
   if (/mentor|maestro|alumno|subordinado|mando|cread|jerarqu|padre|madre|hijo|lider|líder/.test(norm)) {
@@ -87,15 +88,14 @@ export function buildOrthogonalEdgePath(
 ): { pathD: string; labelX: number; labelY: number } {
   const dx = to.x - from.x;
   const dy = to.y - from.y;
-  const stagger = ((edgeIndex % 5) - 2) * 16;
+  const stagger = ((edgeIndex % 5) - 2) * 18;
 
-  // Choose horizontal-first or vertical-first based on dominant axis
   if (Math.abs(dx) >= Math.abs(dy)) {
     const dirX = dx >= 0 ? 1 : -1;
     const startX = from.x + dirX * (from.width / 2);
-    const startY = from.y + Math.max(-from.height * 0.3, Math.min(from.height * 0.3, stagger * 0.6));
+    const startY = from.y + Math.max(-from.height * 0.28, Math.min(from.height * 0.28, stagger * 0.5));
     const endX = to.x - dirX * (to.width / 2);
-    const endY = to.y + Math.max(-to.height * 0.3, Math.min(to.height * 0.3, -stagger * 0.6));
+    const endY = to.y + Math.max(-to.height * 0.28, Math.min(to.height * 0.28, -stagger * 0.5));
     const midX = (startX + endX) / 2 + stagger;
 
     const pathD = `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY} L ${endX} ${endY}`;
@@ -106,9 +106,9 @@ export function buildOrthogonalEdgePath(
     };
   } else {
     const dirY = dy >= 0 ? 1 : -1;
-    const startX = from.x + Math.max(-from.width * 0.3, Math.min(from.width * 0.3, stagger * 0.6));
+    const startX = from.x + Math.max(-from.width * 0.28, Math.min(from.width * 0.28, stagger * 0.5));
     const startY = from.y + dirY * (from.height / 2);
-    const endX = to.x + Math.max(-to.width * 0.3, Math.min(to.width * 0.3, -stagger * 0.6));
+    const endX = to.x + Math.max(-to.width * 0.28, Math.min(to.width * 0.28, -stagger * 0.5));
     const endY = to.y - dirY * (to.height / 2);
     const midY = (startY + endY) / 2 + stagger;
 
@@ -126,27 +126,34 @@ export function computeAutoLayout(
   relations: WorldRelation[],
   customGroups: DiagramGroup[]
 ): { positions: Record<string, { x: number; y: number }>; principals: Set<string> } {
-  // Count connections per character to infer principal hierarchy
   const degree = new Map<string, number>();
-  characters.forEach((p, idx) => degree.set(p.id || `pj_${idx}`, 0));
+  const nameToId = new Map<string, string>();
+  characters.forEach((p, idx) => {
+    const id = p.id || `pj_${idx}`;
+    degree.set(id, 0);
+    if (p.identity.name) nameToId.set(p.identity.name, id);
+  });
+
   relations.forEach((r) => {
-    const f = r.from_id || r.from;
-    const t = r.to_id || r.to;
-    if (degree.has(f)) degree.set(f, (degree.get(f) || 0) + 1);
-    if (degree.has(t)) degree.set(t, (degree.get(t) || 0) + 1);
+    const f = r.from_id && degree.has(r.from_id) ? r.from_id : nameToId.get(r.from) || '';
+    const t = r.to_id && degree.has(r.to_id) ? r.to_id : nameToId.get(r.to) || '';
+    if (f && degree.has(f)) degree.set(f, (degree.get(f) || 0) + 1);
+    if (t && degree.has(t)) degree.set(t, (degree.get(t) || 0) + 1);
   });
 
   const sortedByDeg = [...degree.entries()].sort((a, b) => b[1] - a[1]);
   const principals = new Set<string>();
-  sortedByDeg.slice(0, Math.min(4, Math.ceil(characters.length * 0.15))).forEach(([id, d]) => {
+  sortedByDeg.slice(0, Math.min(5, Math.ceil(characters.length * 0.15))).forEach(([id, d]) => {
     if (d > 0 || characters.length <= 6) principals.add(id);
   });
   if (principals.size === 0 && characters[0]?.id) {
     principals.add(characters[0].id);
   }
 
-  // Group characters by customGroups first, else by faction
+  // Build faction/custom buckets for connected or faction-affiliated characters,
+  // and keep isolated unconnected characters in a clean lower grid.
   const buckets = new Map<string, PJMaster[]>();
+  const isolated: PJMaster[] = [];
   const assigned = new Set<string>();
 
   for (const g of customGroups) {
@@ -164,28 +171,37 @@ export function computeAutoLayout(
   for (const pj of characters) {
     const id = pj.id || '';
     if (assigned.has(id)) continue;
-    const fac = (pj.identity.deity_creed || '').trim() || 'Independientes';
-    if (!buckets.has(fac)) buckets.set(fac, []);
-    buckets.get(fac)!.push(pj);
+    const fac = (pj.identity.deity_creed || '').trim();
+    const deg = degree.get(id) || 0;
+    if (fac) {
+      if (!buckets.has(fac)) buckets.set(fac, []);
+      buckets.get(fac)!.push(pj);
+    } else if (deg > 0) {
+      if (!buckets.has('Núcleo Relacional')) buckets.set('Núcleo Relacional', []);
+      buckets.get('Núcleo Relacional')!.push(pj);
+    } else {
+      isolated.push(pj);
+    }
   }
 
   const positions: Record<string, { x: number; y: number }> = {};
-  let cursorX = 80;
-  let cursorY = 190; // Leave top space for poster title + legend
+  let cursorX = 70;
+  let cursorY = 230; // Strictly below editorial poster header + legend
   let rowMaxH = 0;
-  const maxCanvasWidth = 1480;
+  const maxCanvasWidth = 1520;
 
-  for (const [, members] of buckets.entries()) {
-    const cols = Math.min(4, Math.max(1, Math.ceil(Math.sqrt(members.length))));
-    const cellW = 165;
-    const cellH = 190;
-    const boxW = cols * cellW + 40;
+  for (const [bName, members] of buckets.entries()) {
+    const cols = Math.min(3, Math.max(1, Math.ceil(Math.sqrt(members.length))));
+    const cellW = 195;
+    const cellH = 210;
+    const minTabW = bName.length * 7.5 + 48;
+    const boxW = Math.max(minTabW, cols * cellW + 40);
     const rows = Math.ceil(members.length / cols);
-    const boxH = rows * cellH + 55;
+    const boxH = rows * cellH + 64;
 
-    if (cursorX + boxW > maxCanvasWidth && cursorX > 80) {
-      cursorX = 80;
-      cursorY += rowMaxH + 70;
+    if (cursorX + boxW > maxCanvasWidth && cursorX > 70) {
+      cursorX = 70;
+      cursorY += rowMaxH + 75;
       rowMaxH = 0;
     }
 
@@ -195,12 +211,29 @@ export function computeAutoLayout(
       const r = Math.floor(i / cols);
       positions[id] = {
         x: Math.round(cursorX + 20 + c * cellW + cellW / 2),
-        y: Math.round(cursorY + 35 + r * cellH + cellH / 2),
+        y: Math.round(cursorY + 42 + r * cellH + cellH / 2),
       };
     });
 
-    cursorX += boxW + 60;
+    cursorX += boxW + 75;
     rowMaxH = Math.max(rowMaxH, boxH);
+  }
+
+  // Place isolated / unconnected characters neatly in a clean lower grid
+  if (isolated.length > 0) {
+    const startY = Math.max(cursorY + rowMaxH + 90, 260);
+    const cols = 7;
+    const cellW = 165;
+    const cellH = 175;
+    isolated.forEach((pj, i) => {
+      const id = pj.id || '';
+      const c = i % cols;
+      const r = Math.floor(i / cols);
+      positions[id] = {
+        x: Math.round(70 + c * cellW + cellW / 2),
+        y: Math.round(startY + r * cellH + cellH / 2),
+      };
+    });
   }
 
   return { positions, principals };
@@ -241,14 +274,18 @@ export function computeGroupBoxes(
       maxX = Math.max(maxX, m.x + m.width / 2);
       maxY = Math.max(maxY, m.y + m.height / 2);
     }
+    const tabWidth = Math.max(120, g.name.length * 7.6 + 28);
+    const contentWidth = maxX - minX + 48;
+    const width = Math.max(contentWidth, tabWidth + 24);
     boxes.push({
       id,
       name: g.name,
       color: g.color,
       x: minX - 24,
-      y: minY - 40,
-      width: maxX - minX + 48,
-      height: maxY - minY + 64,
+      y: minY - 42,
+      width,
+      height: maxY - minY + 66,
+      tabWidth,
     });
   }
 
@@ -263,29 +300,27 @@ export async function exportDiagramToPng(
   filename: string
 ): Promise<void> {
   const clone = svgEl.cloneNode(true) as SVGSVGElement;
+  const rootGroup = clone.querySelector('g[data-root="true"]') as SVGGElement | null;
+  if (rootGroup) rootGroup.setAttribute('transform', 'translate(0,0) scale(1)');
+
   const bbox = svgEl.getBBox();
   const pad = 60;
   const minX = Math.min(0, Math.floor(bbox.x - pad));
   const minY = Math.min(0, Math.floor(bbox.y - pad));
-  const width = Math.max(1200, Math.ceil(bbox.width + pad * 2));
-  const height = Math.max(760, Math.ceil(bbox.height + pad * 2));
+  const width = Math.max(1280, Math.ceil(bbox.width + pad * 2));
+  const height = Math.max(820, Math.ceil(bbox.height + pad * 2));
 
   clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
   clone.setAttribute('viewBox', `${minX} ${minY} ${width} ${height}`);
   clone.setAttribute('width', String(width));
   clone.setAttribute('height', String(height));
 
-  // Reset root pan/zoom transform on export so full diagram is framed cleanly
-  const rootGroup = clone.querySelector('g[data-root="true"]');
-  if (rootGroup) rootGroup.setAttribute('transform', 'translate(0,0) scale(1)');
-
-  // Prepend dark editorial background rect
   const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
   bg.setAttribute('x', String(minX));
   bg.setAttribute('y', String(minY));
   bg.setAttribute('width', String(width));
   bg.setAttribute('height', String(height));
-  bg.setAttribute('fill', '#0a0a0c');
+  bg.setAttribute('fill', '#090a0f');
   clone.insertBefore(bg, clone.firstChild);
 
   const serialized = new XMLSerializer().serializeToString(clone);

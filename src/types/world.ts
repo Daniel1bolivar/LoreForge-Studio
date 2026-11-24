@@ -108,6 +108,9 @@ export interface FolderNoteEntry {
 
 export type FolderNoteValue = FolderNoteEntry | string;
 
+export type ChapterTone = 'dark' | 'lumina' | 'mixed';
+export type ChapterMilestone = 'start' | 'midpoint' | 'climax' | 'ending';
+
 export interface ArchiveDocument {
   id: string;
   title: string;
@@ -119,6 +122,9 @@ export interface ArchiveDocument {
   pixel_banner?: PixelBannerConfig | string;
   updated_at?: string;
   parent_id?: string | null;
+  tone?: ChapterTone;
+  milestone?: ChapterMilestone;
+  tracker_badge?: string;
 }
 
 export type WorldArchive = Record<ArchiveCategoryKey, ArchiveDocument[]> &
@@ -151,6 +157,63 @@ export interface WorldGraphLayout {
   panY?: number;
 }
 
+export type MagicSystemType = 'hard' | 'soft' | 'hybrid';
+
+export interface WorldRealismOptions {
+  economy_inflation?: boolean;
+  travel_logistics?: boolean;
+  crude_medicine?: boolean;
+  borders_bureaucracy?: boolean;
+  resource_ecology?: boolean;
+}
+
+export interface MagicPathEntry {
+  name: string;
+  ancient_name?: string;
+  nickname?: string;
+  domain: string;
+  cost: string;
+}
+
+export interface MagicStudioConfig {
+  enabled?: boolean;
+  hardness_level?: 'I' | 'II' | 'III' | 'IV' | 'V' | 'VI' | 'VII' | 'VI+III';
+  constructive_rule?: string;
+  categorical_rule?: string;
+  static_rule?: string;
+  empty_rule?: string;
+  everyday_tactics?: {
+    sense?: string;
+    defend?: string;
+    escalate?: string;
+  };
+  paths?: MagicPathEntry[];
+}
+
+export interface ConlangGlossaryEntry {
+  root: string;
+  gloss: string;
+  category?: string;
+}
+
+export interface ConlangSpellEntry {
+  title: string;
+  text: string;
+  translation: string;
+}
+
+export interface ConlangStudioConfig {
+  enabled?: boolean;
+  name?: string;
+  sound_family?: string;
+  diacritics?: string;
+  syntax_order?: string;
+  cases?: string;
+  verb_modes?: string;
+  glossary?: ConlangGlossaryEntry[];
+  spells?: ConlangSpellEntry[];
+}
+
 export interface WorldMaster {
   id: string;
   name: string;
@@ -160,6 +223,10 @@ export interface WorldMaster {
   last_edited?: string;
   modules?: WorldModulesConfig;
   genre_tone: string;
+  magic_system_type?: MagicSystemType;
+  realism_options?: WorldRealismOptions;
+  magic_studio?: MagicStudioConfig;
+  conlang_studio?: ConlangStudioConfig;
   internal_laws: string[];
   factions: WorldFaction[];
   everyday_life?: string;

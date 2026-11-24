@@ -397,5 +397,18 @@
     "subtitle": "Malla de vínculos interpersonales, lealtades y rivalidades",
     "add": "+ Añadir Vínculo",
     "empty": "No hay relaciones registradas en este mundo todavía."
+  },
+  "realism": {
+    "sectionTitle": "Sistema Mágico & Realismo del Mundo",
+    "magicTypeLabel": "Tipo de Sistema Mágico",
+    "magicHard": "Magia Dura (reglas, costes y límites estrictos)",
+    "magicSoft": "Magia Blanda (misteriosa, atmosférica y sin tablas rígidas)",
+    "magicHybrid": "Híbrido (núcleo duro con misterios antiguos)",
+    "optionsLabel": "Fricciones de Realismo Activas",
+    "economy_inflation": "Economía, inflación de moneda y trueque",
+    "travel_logistics": "Logística real, clima y tiempos de viaje",
+    "crude_medicine": "Medicina cruda, infecciones y secuelas",
+    "borders_bureaucracy": "Burocracia, peajes y salvoconductos",
+    "resource_ecology": "Ecología desgastada y escasez de recursos"
   }
 }

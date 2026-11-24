@@ -114,8 +114,136 @@ export function renderMapsView(): HTMLElement {
     mapSurface.appendChild(placeholder);
   }
 
-  // Render Draggable Pins
   const pins: MapPin[] = currentMap.pins || [];
+
+  // Route & Travel Time Calculator Bar (accessible + tabular-nums)
+  let routeFromId = pins[0]?.id || '';
+  let routeToId = pins[1]?.id || '';
+  const scaleLeagues = currentMap.scale_leagues_per_100pct || 80;
+
+  const routeSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  routeSvg.setAttribute('viewBox', '0 0 100 100');
+  routeSvg.setAttribute('preserveAspectRatio', 'none');
+  routeSvg.style.cssText = 'position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:6;';
+
+  const routeOutput = h('div', {
+    style: 'display:flex; flex-wrap:wrap; gap:12px; align-items:center; font-size:12px; font-variant-numeric:tabular-nums; color:var(--text-primary);',
+  });
+
+  function updateRouteCalc() {
+    const pA = pins.find((p) => p.id === routeFromId);
+    const pB = pins.find((p) => p.id === routeToId);
+    routeSvg.innerHTML = '';
+    routeOutput.innerHTML = '';
+
+    if (!pA || !pB || pA.id === pB.id) {
+      routeOutput.appendChild(
+        h('span', { class: 'text-muted' }, ['Selecciona dos chinchetas distintas para calcular leguas y jornadas de viaje.'])
+      );
+      return;
+    }
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', String(pA.x_pct));
+    line.setAttribute('y1', String(pA.y_pct));
+    line.setAttribute('x2', String(pB.x_pct));
+    line.setAttribute('y2', String(pB.y_pct));
+    line.setAttribute('stroke', '#f59e0b');
+    line.setAttribute('stroke-width', '0.5');
+    line.setAttribute('stroke-dasharray', '1.4 0.9');
+    routeSvg.appendChild(line);
+
+    const pctDist = Math.hypot(pB.x_pct - pA.x_pct, pB.y_pct - pA.y_pct);
+    const leagues = Math.max(1, Math.round((pctDist / 100) * (currentMap.scale_leagues_per_100pct || 80)));
+    const footDays = (leagues / 5).toFixed(1);
+    const horseDays = (leagues / 10).toFixed(1);
+    const bargeDays = (leagues / 22).toFixed(1);
+
+    routeOutput.appendChild(h('strong', { style: 'color:var(--accent-primary);' }, [`${leagues} leguas`]));
+    routeOutput.appendChild(h('span', {}, [`A pie (barro): ${footDays} d`]));
+    routeOutput.appendChild(h('span', {}, [`A caballo: ${horseDays} d`]));
+    routeOutput.appendChild(h('span', {}, [`Barcaza: ${bargeDays} d`]));
+  }
+
+  if (pins.length >= 2) {
+    const fromSel = h(
+      'select',
+      {
+        class: 'input-select',
+        style: 'min-height:36px; min-width:150px;',
+        onchange: (e: any) => {
+          routeFromId = e.target.value;
+          updateRouteCalc();
+        },
+      },
+      ...pins.map((p) => {
+        const opt = h('option', { value: p.id }, [p.label]) as HTMLOptionElement;
+        if (p.id === routeFromId) opt.selected = true;
+        return opt;
+      })
+    );
+    const toSel = h(
+      'select',
+      {
+        class: 'input-select',
+        style: 'min-height:36px; min-width:150px;',
+        onchange: (e: any) => {
+          routeToId = e.target.value;
+          updateRouteCalc();
+        },
+      },
+      ...pins.map((p) => {
+        const opt = h('option', { value: p.id }, [p.label]) as HTMLOptionElement;
+        if (p.id === routeToId) opt.selected = true;
+        return opt;
+      })
+    );
+    const scaleInput = h('input', {
+      type: 'number',
+      min: '10',
+      max: '5000',
+      value: String(scaleLeagues),
+      class: 'input-text',
+      style: 'width:82px; min-height:36px; font-variant-numeric:tabular-nums;',
+      title: 'Leguas equivalentes al ancho completo del mapa',
+      onchange: (e: any) => {
+        const val = Math.max(10, Number(e.target.value) || 80);
+        appStore.mutate((s) => {
+          const w = s.worlds.find((item) => item.id === world.id);
+          const m = w?.maps?.find((map) => map.id === currentMap.id);
+          if (m) m.scale_leagues_per_100pct = val;
+        });
+        updateRouteCalc();
+      },
+    });
+
+    const routeBar = h(
+      'div',
+      {
+        style:
+          'display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; padding:10px 18px; background:var(--surface-sunken); border-bottom:1px solid var(--border-subtle); z-index:9;',
+      },
+      [
+        h('div', { style: 'display:flex; flex-wrap:wrap; align-items:center; gap:8px;' }, [
+          h('strong', { style: 'font-size:12px; color:var(--text-primary);' }, ['Calculadora de Ruta:']),
+          fromSel,
+          h('span', { class: 'text-muted text-xs' }, ['hacia']),
+          toSel,
+          h('label', { style: 'display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-secondary);' }, [
+            'Escala (leguas):',
+            scaleInput,
+          ]),
+        ]),
+        routeOutput,
+      ]
+    );
+    container.appendChild(routeBar);
+    updateRouteCalc();
+  }
+
+  mapSurface.appendChild(routeSvg);
+
+  // Render Draggable Pins
   pins.forEach((pin) => {
     let isDraggingPin = false;
     let hasMoved = false;
@@ -192,7 +320,7 @@ export function renderMapsView(): HTMLElement {
         style: 'font-size:11px; font-weight:700; background:rgba(10,10,12,0.85); color:#fff; padding:2px 8px; border-radius:4px; margin-top:3px; white-space:nowrap; border:1px solid rgba(255,255,255,0.15); box-shadow:0 2px 6px rgba(0,0,0,0.5);'
       }, [
         pin.label,
-        childMap ? ' 🗺️' : ''
+        childMap ? ' [Submapa]' : ''
       ])
     ]);
 

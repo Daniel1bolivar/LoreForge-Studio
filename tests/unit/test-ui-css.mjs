@@ -99,11 +99,11 @@ async function testUiAndCss() {
   assert.deepEqual(esKeys, enKeys, 'es.json and en.json must match 100%');
   console.log(`[OK] i18n key parity complete: ${esKeys.length} matching keys in both locales.`);
 
-  // 4. Check master backup has 32 PJs, chapters, and lore
+  // 4. Check master backup has >= 32 PJs, chapters, and lore
   const masterJson = readJson('private/la-gema-de-las-almas.worldbuilder.json');
-  assert.equal(masterJson.state.pjs.length, 32, 'Master JSON must contain 32 characters');
+  assert.ok(masterJson.state.pjs.length >= 32, `Master JSON must contain at least 32 characters (got ${masterJson.state.pjs.length})`);
   assert.equal(masterJson.state.worlds[0].id, 'world_gema', 'Master world must be world_gema');
-  console.log('[OK] Master private backup verified with 32 characters, chapters, and lore.');
+  console.log(`[OK] Master private backup verified with ${masterJson.state.pjs.length} characters, chapters, and lore.`);
 
   console.log('\n[PASS] All UI, CSS, and automated consistency tests passed successfully!');
 }

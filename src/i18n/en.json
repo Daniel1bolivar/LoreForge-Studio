@@ -397,5 +397,18 @@
     "subtitle": "Network of interpersonal bonds, loyalties, and rivalries",
     "add": "+ Add Relation",
     "empty": "No relations registered in this world yet."
+  },
+  "realism": {
+    "sectionTitle": "Magic System & World Realism",
+    "magicTypeLabel": "Magic System Type",
+    "magicHard": "Hard Magic (strict rules, costs, and limits)",
+    "magicSoft": "Soft Magic (mysterious, atmospheric, unquantified)",
+    "magicHybrid": "Hybrid (hard core with ancient mysteries)",
+    "optionsLabel": "Active Realism Frictions",
+    "economy_inflation": "Economy, currency inflation & barter",
+    "travel_logistics": "Realistic travel times, weather & logistics",
+    "crude_medicine": "Crude medicine, infections & lasting scars",
+    "borders_bureaucracy": "Borders, tolls & forged safe-conducts",
+    "resource_ecology": "Depleted ecology & resource scarcity"
   }
 }

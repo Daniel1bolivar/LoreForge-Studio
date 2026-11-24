@@ -57,6 +57,7 @@ export interface WorldMap {
   image_src: string;
   asset_id?: string;
   description?: string;
+  scale_leagues_per_100pct?: number;
   pins: MapPin[];
 }
 

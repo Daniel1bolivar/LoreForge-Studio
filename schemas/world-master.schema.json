@@ -34,6 +34,93 @@
       }
     },
     "genre_tone": { "type": "string" },
+    "magic_system_type": {
+      "type": "string",
+      "enum": ["hard", "soft", "hybrid"],
+      "description": "Naturaleza del sistema mágico: magia dura, magia blanda o híbrida"
+    },
+    "realism_options": {
+      "type": "object",
+      "description": "Opciones activas de realismo material y fricción cotidiana",
+      "properties": {
+        "economy_inflation": { "type": "boolean" },
+        "travel_logistics": { "type": "boolean" },
+        "crude_medicine": { "type": "boolean" },
+        "borders_bureaucracy": { "type": "boolean" },
+        "resource_ecology": { "type": "boolean" }
+      }
+    },
+    "magic_studio": {
+      "type": "object",
+      "description": "Constructor genérico de sistema mágico (Niveles I-VII, 4 Reglas y Caminos)",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "hardness_level": { "type": "string", "enum": ["I", "II", "III", "IV", "V", "VI", "VII", "VI+III"] },
+        "constructive_rule": { "type": "string" },
+        "categorical_rule": { "type": "string" },
+        "static_rule": { "type": "string" },
+        "empty_rule": { "type": "string" },
+        "everyday_tactics": {
+          "type": "object",
+          "properties": {
+            "sense": { "type": "string" },
+            "defend": { "type": "string" },
+            "escalate": { "type": "string" }
+          }
+        },
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "domain", "cost"],
+            "properties": {
+              "name": { "type": "string" },
+              "ancient_name": { "type": "string" },
+              "nickname": { "type": "string" },
+              "domain": { "type": "string" },
+              "cost": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "conlang_studio": {
+      "type": "object",
+      "description": "Laboratorio genérico de conlang, fonología, casos y ensamblador de frases",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "name": { "type": "string" },
+        "sound_family": { "type": "string" },
+        "diacritics": { "type": "string" },
+        "syntax_order": { "type": "string" },
+        "cases": { "type": "string" },
+        "verb_modes": { "type": "string" },
+        "glossary": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["root", "gloss"],
+            "properties": {
+              "root": { "type": "string" },
+              "gloss": { "type": "string" },
+              "category": { "type": "string" }
+            }
+          }
+        },
+        "spells": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["title", "text", "translation"],
+            "properties": {
+              "title": { "type": "string" },
+              "text": { "type": "string" },
+              "translation": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
     "internal_laws": { "type": "array", "items": { "type": "string" } },
     "factions": {
       "type": "array",
@@ -151,7 +238,10 @@
               }
             },
             "updated_at": { "type": "string" },
-            "parent_id": { "type": ["string", "null"] }
+            "parent_id": { "type": ["string", "null"] },
+            "tone": { "type": "string", "enum": ["dark", "lumina", "mixed"] },
+            "milestone": { "type": "string", "enum": ["start", "midpoint", "climax", "ending"] },
+            "tracker_badge": { "type": "string" }
           }
         }
       }
@@ -251,6 +341,7 @@
           "level": { "type": "string", "enum": ["continent", "region", "city", "dungeon"] },
           "parent_map_id": { "type": ["string", "null"] },
           "image_src": { "type": "string" },
+          "scale_leagues_per_100pct": { "type": "number", "minimum": 1 },
           "asset_id": { "type": "string" },
           "description": { "type": "string" },
           "pins": {

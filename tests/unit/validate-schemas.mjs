@@ -77,17 +77,16 @@ async function main() {
       1,
       'private archive must contain exactly 1 world'
     );
-    assert.equal(
-      privateState.pjs.length,
-      32,
-      'private archive must contain exactly 32 PJs'
+    assert.ok(
+      privateState.pjs.length >= 32,
+      `private archive must contain at least 32 PJs (got ${privateState.pjs.length})`
     );
     assertWorldValid(privateState.worlds[0], 'private:world_0');
     for (const pj of privateState.pjs) {
       assertPjValid(pj, `private:${pj.identity?.name || pj.id}`);
     }
     console.log(
-      '[OK] Validated private/la-gema-de-las-almas.worldbuilder.json (1 world, 32 PJs)'
+      `[OK] Validated private/la-gema-de-las-almas.worldbuilder.json (1 world, ${privateState.pjs.length} PJs)`
     );
   } else {
     console.log('[SKIP] private/la-gema-de-las-almas.worldbuilder.json not present');

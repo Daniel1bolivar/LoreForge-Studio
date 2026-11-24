@@ -44,6 +44,7 @@ LoreForge Studio preserves full import/export compatibility with:
 | **Visual Graph, Timeline & Nested Maps** | Native zero-plugin canvas graph, multi-track timeline, Continent→City→Dungeon pins | Basic connections & maps | Requires external plugins (Canvas/Leaflet/Timeline) |
 | **Contradiction Detector** | Automatic post-death timeline, overlap, orphan faction/language & broken `[[wiki-link]]` checks | None | None natively |
 | **Optional RPG & VTT/RP Bridges** | Per-world toggleable modules (Dice, Statblocks, Initiative, Kanban, Calendar, Player View) + Foundry/Nexus V3/Lorebook/EPUB | Basic export | Requires third-party plugins |
+| **Magic System & Realism** | Built-in Hard/Soft/Hybrid magic selector + world realism frictions (economy, logistics, medicine, borders, ecology) | Manual notes | Manual templates |
 
 ---
 
@@ -77,6 +78,7 @@ Comandos principales:
 
 - **Frente a Fantasia Archive:** añade psicología avanzada de personajes, detector automático de contradicciones, línea temporal multi-track con detección de solapes, mapas jerárquicos anidados, módulos RPG activables por mundo y puentes directos a Foundry VTT / Nexus V3 / EPUB 3, todo bajo licencia MIT en navegador, PWA y Android.
 - **Frente a Obsidian:** ofrece de fábrica árbol narrativo de 15 categorías, wiki-links `[[entidad]]` con vista previa, grafo, timeline, mapas con pines y validaciones narrativas sin configurar docenas de plugins ni depender de software propietario.
+- **Realismo y Sistema Mágico por mundo:** incluye selector de **Magia Dura / Magia Blanda / Híbrido** y conmutadores de realismo material (*economía e inflación, logística de viajes, medicina cruda, burocracia fronteriza y ecología de recursos*).
 
 ---
 
