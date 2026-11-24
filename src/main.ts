@@ -3,6 +3,15 @@ import './styles/tokens.css';
 import './styles/layout.css';
 import { getState, initStore, restoreMasterGemaBook, subscribe } from './state/store';
 import { renderAppShell } from './ui/shell';
+import {
+  applyFontScaleToDom,
+  checkAndTrackDataMutation,
+  initMobileRuntime,
+  markBackupExported,
+  resetNavStack,
+  restoreCurrentScroll,
+  syncNavStackWithState,
+} from './ui/mobile';
 
 function mountApp(): void {
   const root = document.getElementById('app');
@@ -10,13 +19,18 @@ function mountApp(): void {
 
   const shell = renderAppShell();
   root.replaceChildren(shell);
+  applyFontScaleToDom();
+  restoreCurrentScroll();
 }
 
 // Initialize persistence & store
 initStore();
+initMobileRuntime();
 
 // Subscribe to state updates for UI reactivity
 subscribe(() => {
+  checkAndTrackDataMutation();
+  syncNavStackWithState();
   mountApp();
 });
 
@@ -28,6 +42,8 @@ async function autoLoadLocalGema(): Promise<void> {
   // If world_gema is missing or was corrupted / characters deleted (< 32), restore it
   if (!existingWorld || existingPjCount < 32) {
     await restoreMasterGemaBook();
+    resetNavStack();
+    markBackupExported();
   }
 }
 

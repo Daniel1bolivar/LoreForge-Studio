@@ -11,3 +11,6 @@ android/app/build/
 *.local
 .env
 .env.*
+*.p12
+*.keystore
+*.jks

@@ -14,6 +14,16 @@ import { TREE_CATEGORIES } from '../state/defaults';
 import { h, toast } from './dom';
 import { icon } from './icons';
 import { openCommandPalette } from './palette';
+import {
+  cycleFontScale,
+  exportQuickJsonBackup,
+  getFontScale,
+  hasPendingBackup,
+  isKeepAwakeEnabled,
+  registerDrawerController,
+  toggleKeepAwake,
+  triggerHaptic,
+} from './mobile';
 import type { ViewId, ThemeId } from '../types/state';
 
 // Views
@@ -35,42 +45,114 @@ import { renderPlayerView } from '../views/player';
 import { renderTomView } from '../views/tom';
 import { renderCompilerView } from '../views/compiler';
 
+let keyListenerRegistered = false;
+let mobileDrawerOpen = false;
+
+function fontScaleLabel(scale: 'normal' | 'large' | 'extra'): string {
+  if (scale === 'extra') return 'A++ Extra';
+  if (scale === 'large') return 'A+ Grande';
+  return 'A Normal';
+}
+
 export function renderAppShell(): HTMLElement {
   const state = getState();
   const world = appStore.getActiveWorld();
   const characters = appStore.getCharactersForWorld(world.id);
   const activePj = appStore.getActivePj();
+  const fontScale = getFontScale();
+  const keepAwake = isKeepAwakeEnabled();
+  const pendingBackup = hasPendingBackup();
 
   const root = h('div', {
     class: 'lf-workspace',
     'data-theme': state.theme,
-    style: 'display:flex; flex-direction:column; width:100vw; height:100vh; overflow:hidden; background:var(--surface-base); color:var(--text-primary); font-family:var(--font-sans);'
+    'data-font-scale': fontScale,
+    ...(fontScale === 'extra' ? { 'data-a11y': 'senior' } : {}),
   });
+
+  const setDrawerOpen = (open: boolean) => {
+    mobileDrawerOpen = open;
+    const sidebarEl = root.querySelector('.lf-sidebar');
+    const backdropEl = root.querySelector('.lf-sidebar-backdrop');
+    sidebarEl?.classList.toggle('open', open);
+    backdropEl?.classList.toggle('open', open);
+    const menuNavBtn = root.querySelector('.bottom-nav-menu-btn');
+    menuNavBtn?.classList.toggle('active', open);
+  };
+
+  registerDrawerController(
+    () => mobileDrawerOpen,
+    () => setDrawerOpen(false)
+  );
+
+  const fontBtn = h('button', {
+    class: `btn btn-sm ${fontScale !== 'normal' ? 'btn-primary' : 'btn-secondary'}`,
+    title: 'Cambiar escala de lectura (Normal / Grande / Extra)',
+    'aria-label': 'Cambiar tamaño de letra',
+    onclick: () => {
+      const next = cycleFontScale();
+      fontBtn.textContent = fontScaleLabel(next);
+      fontBtn.classList.toggle('btn-primary', next !== 'normal');
+      fontBtn.classList.toggle('btn-secondary', next === 'normal');
+    },
+  }, [fontScaleLabel(fontScale)]) as HTMLButtonElement;
+
+  const awakeBtn = h('button', {
+    class: `btn btn-sm header-hide-mobile ${keepAwake ? 'btn-primary' : 'btn-secondary'}`,
+    title: 'Mantener pantalla encendida durante la lectura o escritura',
+    'aria-pressed': String(keepAwake),
+    onclick: async () => {
+      const next = await toggleKeepAwake();
+      awakeBtn.classList.toggle('btn-primary', next);
+      awakeBtn.classList.toggle('btn-secondary', !next);
+      awakeBtn.setAttribute('aria-pressed', String(next));
+      awakeBtn.textContent = next ? 'Pantalla: ON' : 'Pantalla: AUTO';
+    },
+  }, [keepAwake ? 'Pantalla: ON' : 'Pantalla: AUTO']) as HTMLButtonElement;
+
+  const backupDot = h('span', {
+    class: `lf-backup-dot ${pendingBackup ? '' : 'hidden'}`,
+    title: 'Hay cambios sin respaldar en archivo',
+  });
+
+  const quickBackupBtn = h('button', {
+    class: 'btn btn-secondary btn-sm lf-backup-btn',
+    title: 'Exportar y compartir respaldo JSON completo',
+    'aria-label': 'Exportar respaldo JSON',
+    onclick: () => {
+      void exportQuickJsonBackup();
+    },
+  }, [icon('share-2', 14), h('span', { class: 'header-hide-mobile' }, ['Respaldar']), backupDot]);
 
   // 1. Top Header
   const header = h('header', {
     class: 'lf-header',
-    style: 'height:52px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; background:var(--surface-elevated); border-bottom:1px solid var(--border-subtle); flex-shrink:0; z-index:20;'
   }, [
     // Brand & Active World
-    h('div', { style: 'display:flex; align-items:center; gap:16px;' }, [
+    h('div', { style: 'display:flex; align-items:center; gap:10px; min-width:0;' }, [
+      h('button', {
+        class: 'btn btn-secondary btn-sm lf-mobile-menu-btn',
+        'aria-label': 'Abrir menú',
+        onclick: () => setDrawerOpen(!mobileDrawerOpen),
+      }, [icon('menu', 18)]),
       h('div', {
         style: 'display:flex; align-items:center; gap:8px; cursor:pointer;',
         onclick: () => setView('dashboard')
       }, [
         icon('book-open', 20),
-        h('span', { style: 'font-weight:800; font-size:16px; letter-spacing:-0.03em;' }, ['LoreForge Studio'])
+        h('span', { style: 'font-weight:800; font-size:16px; letter-spacing:-0.03em; white-space:nowrap;' }, ['LoreForge'])
       ]),
       // 1-Click World Switcher
       h('div', {
         class: 'header-world-selector',
-        style: 'display:flex; align-items:center; gap:6px; background:var(--surface-sunken); padding:2px 8px; border-radius:6px; border:1px solid var(--border-subtle); font-size:12px;'
+        style: 'display:flex; align-items:center; gap:6px; background:var(--surface-sunken); padding:2px 8px; border-radius:6px; border:1px solid var(--border-subtle); font-size:12px; min-width:0;'
       }, [
         icon('globe', 14),
         h('select', {
           class: 'input-select input-sm',
-          style: 'border:none; background:transparent; padding:4px 6px; font-weight:700; color:var(--text-primary); cursor:pointer; outline:none; max-width:240px;',
+          style: 'border:none; background:transparent; padding:4px 6px; font-weight:700; color:var(--text-primary); cursor:pointer; outline:none; max-width:200px;',
           title: 'Cambiar de mundo con un clic',
+          'aria-label': 'Seleccionar mundo',
           onchange: (e: any) => {
             const val = e.target.value;
             if (val === '__manage_worlds__') {
@@ -90,9 +172,9 @@ export function renderAppShell(): HTMLElement {
           h('option', { value: '__manage_worlds__' }, '⚙ Administrar Mundos...')
         ])
       ]),
-      // Active PJ Pill
+      // Active PJ Pill (desktop)
       activePj ? h('div', {
-        class: 'header-pill',
+        class: 'header-pill header-hide-mobile',
         style: 'display:flex; align-items:center; gap:6px; background:var(--surface-sunken); padding:4px 10px; border-radius:6px; border:1px solid var(--border-subtle); font-size:12px; cursor:pointer;',
         onclick: () => setView('pj')
       }, [
@@ -104,8 +186,8 @@ export function renderAppShell(): HTMLElement {
 
     // Center: Search / Command Palette Shortcut
     h('button', {
-      class: 'btn btn-secondary btn-sm',
-      style: 'display:flex; align-items:center; gap:8px; padding:6px 14px; min-width:220px; color:var(--text-muted); justify-content:space-between;',
+      class: 'btn btn-secondary btn-sm header-hide-mobile',
+      style: 'display:flex; align-items:center; gap:8px; padding:6px 14px; min-width:200px; color:var(--text-muted); justify-content:space-between;',
       onclick: () => openCommandPalette()
     }, [
       h('span', { style: 'display:flex; align-items:center; gap:6px;' }, [icon('search', 14), document.createTextNode('Buscar en mundo...')]),
@@ -113,10 +195,13 @@ export function renderAppShell(): HTMLElement {
     ]),
 
     // Right Controls
-    h('div', { style: 'display:flex; align-items:center; gap:10px;' }, [
+    h('div', { style: 'display:flex; align-items:center; gap:8px; flex-shrink:0;' }, [
+      fontBtn,
+      awakeBtn,
+      quickBackupBtn,
       // Import JSON Button
       h('button', {
-        class: 'btn btn-secondary btn-sm',
+        class: 'btn btn-secondary btn-sm header-hide-mobile',
         title: 'Importar mundo o novela desde archivo JSON',
         onclick: () => {
           const fileInput = document.createElement('input');
@@ -164,14 +249,15 @@ export function renderAppShell(): HTMLElement {
 
       // RPG Mode Toggle
       h('button', {
-        class: `btn btn-sm ${state.rpgMode ? 'btn-primary' : 'btn-secondary'}`,
+        class: `btn btn-sm header-hide-mobile ${state.rpgMode ? 'btn-primary' : 'btn-secondary'}`,
         onclick: () => toggleRpgMode()
       }, [icon('sword', 14), document.createTextNode(state.rpgMode ? 'RPG: ON' : 'RPG: OFF')]),
 
       // Theme Selector
       h('select', {
-        class: 'input-select input-sm',
+        class: 'input-select input-sm header-hide-mobile',
         style: 'min-width:110px;',
+        'aria-label': 'Tema visual',
         onchange: (e: any) => setThemeState(e.target.value as ThemeId)
       }, [
         h('option', { value: 'pergamino' }, ['Pergamino']),
@@ -185,7 +271,7 @@ export function renderAppShell(): HTMLElement {
 
       // Locale Toggle
       h('button', {
-        class: 'btn btn-secondary btn-sm',
+        class: 'btn btn-secondary btn-sm header-hide-mobile',
         onclick: () => setLocaleState(state.locale === 'es' ? 'en' : 'es')
       }, [state.locale.toUpperCase()])
     ])
@@ -194,59 +280,152 @@ export function renderAppShell(): HTMLElement {
   // 2. Main Workspace Layout (Sidebar + Body)
   const workspaceBody = h('div', {
     class: 'lf-workspace-body',
-    style: 'display:flex; flex:1; height:calc(100vh - 52px); overflow:hidden;'
+  });
+
+  const backdrop = h('div', {
+    class: `lf-sidebar-backdrop ${mobileDrawerOpen ? 'open' : ''}`,
+    onclick: () => setDrawerOpen(false),
   });
 
   // Sidebar
-  const sidebar = renderSidebar(state, world, characters);
+  const sidebar = renderSidebar(state, world, characters, () => setDrawerOpen(false));
+  if (mobileDrawerOpen) sidebar.classList.add('open');
+  workspaceBody.appendChild(backdrop);
   workspaceBody.appendChild(sidebar);
 
   // Main View Container
   const mainPane = h('main', {
     class: 'lf-main-pane',
-    style: 'flex:1; height:100%; overflow:hidden; background:var(--surface-base); position:relative;'
   });
 
   mainPane.appendChild(renderActiveView(state.activeView));
   workspaceBody.appendChild(mainPane);
 
+  // Mobile Bottom Navigation Bar (5 clear thumb-zone actions)
+  const bottomNav = h('nav', {
+    class: 'lf-bottom-nav',
+    'aria-label': 'Navegación principal móvil',
+  }, [
+    createBottomNavBtn('Inicio', 'home', state.activeView === 'dashboard', () => {
+      void triggerHaptic('light');
+      setDrawerOpen(false);
+      setView('dashboard');
+    }),
+    createBottomNavBtn(
+      'Personajes',
+      'users',
+      state.activeView === 'pj' || (state.activeView === 'gallery' && state.activeGalleryCat === 'pjs'),
+      () => {
+        void triggerHaptic('light');
+        setDrawerOpen(false);
+        setGalleryCategory('pjs');
+        setView('gallery');
+      }
+    ),
+    createBottomNavBtn(
+      'Escritos',
+      'file-text',
+      state.activeView === 'doc' || (state.activeView === 'gallery' && state.activeGalleryCat === 'chapters'),
+      () => {
+        void triggerHaptic('light');
+        setDrawerOpen(false);
+        setGalleryCategory('chapters');
+        setView('gallery');
+      }
+    ),
+    createBottomNavBtn('Mundo', 'globe', state.activeView === 'world', () => {
+      void triggerHaptic('light');
+      setDrawerOpen(false);
+      setView('world');
+    }),
+    createBottomNavBtn('Menú', 'menu', mobileDrawerOpen, () => {
+      void triggerHaptic('light');
+      setDrawerOpen(!mobileDrawerOpen);
+    }, 'bottom-nav-menu-btn'),
+  ]);
+
   root.appendChild(header);
   root.appendChild(workspaceBody);
+  root.appendChild(bottomNav);
 
-  // Global key listener for Ctrl+K
-  window.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-      e.preventDefault();
-      openCommandPalette();
-    }
-  });
+  // Global key listener for Ctrl+K (register once)
+  if (!keyListenerRegistered) {
+    keyListenerRegistered = true;
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        openCommandPalette();
+      }
+    });
+  }
 
   return root;
 }
 
-function renderSidebar(state: any, world: any, characters: any[]): HTMLElement {
+function createBottomNavBtn(
+  label: string,
+  iconName: string,
+  isActive: boolean,
+  onClick: () => void,
+  extraClass = ''
+): HTMLElement {
+  return h('button', {
+    type: 'button',
+    class: `bottom-nav-btn ${isActive ? 'active' : ''} ${extraClass}`.trim(),
+    'aria-current': isActive ? 'page' : 'false',
+    onclick: onClick,
+  }, [
+    icon(iconName, 20),
+    h('span', {}, [label]),
+  ]);
+}
+
+function renderSidebar(state: any, world: any, characters: any[], onNavigate: () => void): HTMLElement {
   const sidebarEl = h('aside', {
     class: 'lf-sidebar',
-    style: 'width:280px; height:100%; background:var(--surface-sunken); border-right:1px solid var(--border-subtle); display:flex; flex-direction:column; overflow-y:auto; flex-shrink:0;'
   });
 
   // Quick Tools Navigation
   const quickNav = h('div', { style: 'padding:12px; display:flex; flex-direction:column; gap:2px; border-bottom:1px solid var(--border-subtle);' }, [
-    createNavItem('dashboard', 'Dashboard', 'layout', state.activeView === 'dashboard'),
-    createNavItem('world', 'Biblia del Mundo', 'globe', state.activeView === 'world'),
-    createNavItem('graph', 'Grafo Canvas', 'git-fork', state.activeView === 'graph'),
-    createNavItem('timeline', 'Línea Temporal', 'calendar', state.activeView === 'timeline'),
-    createNavItem('maps', 'Atlas & Mapas', 'map', state.activeView === 'maps'),
-    createNavItem('contradictions', 'Contradicciones', 'alert-triangle', state.activeView === 'contradictions'),
-    createNavItem('rpg', 'Mesa TTRPG', 'sword', state.activeView === 'rpg'),
-    createNavItem('kanban', 'Tablero Kanban', 'layout', state.activeView === 'kanban'),
-    createNavItem('calendar', 'Calendario', 'calendar', state.activeView === 'calendar'),
-    createNavItem('player', 'Vista Jugador', 'eye', state.activeView === 'player'),
-    createNavItem('tom', 'Matriz ToM', 'eye', state.activeView === 'tom'),
-    createNavItem('export', 'Compilador & VTT', 'download', state.activeView === 'export')
+    createNavItem('dashboard', 'Dashboard', 'layout', state.activeView === 'dashboard', onNavigate),
+    createNavItem('world', 'Biblia del Mundo', 'globe', state.activeView === 'world', onNavigate),
+    createNavItem('graph', 'Grafo & Relaciones', 'network', state.activeView === 'graph', onNavigate),
+    createNavItem('timeline', 'Línea Temporal', 'calendar', state.activeView === 'timeline', onNavigate),
+    createNavItem('maps', 'Atlas & Mapas', 'map', state.activeView === 'maps', onNavigate),
+    createNavItem('contradictions', 'Contradicciones', 'alert-triangle', state.activeView === 'contradictions', onNavigate),
+    createNavItem('rpg', 'Mesa TTRPG', 'sword', state.activeView === 'rpg', onNavigate),
+    createNavItem('kanban', 'Tablero Kanban', 'layout', state.activeView === 'kanban', onNavigate),
+    createNavItem('calendar', 'Calendario', 'calendar', state.activeView === 'calendar', onNavigate),
+    createNavItem('player', 'Vista Jugador', 'eye', state.activeView === 'player', onNavigate),
+    createNavItem('tom', 'Matriz ToM', 'eye', state.activeView === 'tom', onNavigate),
+    createNavItem('export', 'Compilador & VTT', 'download', state.activeView === 'export', onNavigate)
   ]);
 
   sidebarEl.appendChild(quickNav);
+
+  // Mobile Reading & Backup Utilities inside Drawer
+  const mobileTools = h('div', { class: 'lf-drawer-mobile-tools' }, [
+    h('button', {
+      type: 'button',
+      class: `btn btn-sm ${isKeepAwakeEnabled() ? 'btn-primary' : 'btn-secondary'}`,
+      onclick: async (e: Event) => {
+        const next = await toggleKeepAwake();
+        const btn = e.currentTarget as HTMLButtonElement;
+        btn.classList.toggle('btn-primary', next);
+        btn.classList.toggle('btn-secondary', !next);
+        btn.textContent = next ? 'Pantalla activa: ON' : 'Pantalla activa: OFF';
+      },
+    }, [isKeepAwakeEnabled() ? 'Pantalla activa: ON' : 'Pantalla activa: OFF']),
+    h('button', {
+      type: 'button',
+      class: 'btn btn-secondary btn-sm',
+      onclick: () => {
+        void exportQuickJsonBackup();
+        onNavigate();
+      },
+    }, [icon('share-2', 14), document.createTextNode('Compartir respaldo JSON')]),
+  ]);
+  sidebarEl.appendChild(mobileTools);
 
   // 15-Category Document & Entity Tree
   const treeContainer = h('div', { style: 'padding:12px; display:flex; flex-direction:column; gap:4px;' }, [
@@ -271,6 +450,7 @@ function renderSidebar(state: any, world: any, characters: any[]): HTMLElement {
       onclick: () => {
         setGalleryCategory(cat.key);
         setView('gallery');
+        onNavigate();
       }
     }, [
       h('div', { style: 'display:flex; align-items:center; gap:8px;' }, [
@@ -287,11 +467,14 @@ function renderSidebar(state: any, world: any, characters: any[]): HTMLElement {
   return sidebarEl;
 }
 
-function createNavItem(viewId: ViewId, title: string, iconName: any, isActive: boolean): HTMLElement {
+function createNavItem(viewId: ViewId, title: string, iconName: any, isActive: boolean, onNavigate: () => void): HTMLElement {
   return h('div', {
     class: `nav-item ${isActive ? 'nav-item-active' : ''}`,
     style: `display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:6px; cursor:pointer; font-size:13px; font-weight:${isActive ? '600' : '500'}; background:${isActive ? 'var(--surface-elevated)' : 'transparent'}; color:${isActive ? 'var(--accent-primary, #60a5fa)' : 'var(--text-secondary)'};`,
-    onclick: () => setView(viewId)
+    onclick: () => {
+      setView(viewId);
+      onNavigate();
+    }
   }, [
     icon(iconName, 16),
     document.createTextNode(title)

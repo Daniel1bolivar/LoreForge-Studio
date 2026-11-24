@@ -4,6 +4,7 @@ import { h, toast } from '../ui/dom';
 import { icon } from '../ui/icons';
 import { compileMarkdown, compileHtml, compileEpub } from '../engines/compiler';
 import { exportPJMaster, exportNexusV3, exportLorebook, exportFoundry } from '../engines/bridges';
+import { markBackupExported, shareOrDownloadBlob, shareOrDownloadText } from '../ui/mobile';
 
 export function renderCompilerView(): HTMLElement {
   const world = appStore.getActiveWorld();
@@ -155,16 +156,12 @@ export function renderCompilerView(): HTMLElement {
   return container;
 
   function downloadFile(content: string, filename: string, mime: string) {
-    const blob = new Blob([content], { type: mime });
-    downloadBlob(blob, filename);
+    markBackupExported();
+    void shareOrDownloadText(content, filename, mime, filename);
   }
 
   function downloadBlob(blob: Blob, filename: string) {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
+    markBackupExported();
+    void shareOrDownloadBlob(blob, filename, filename);
   }
 }
