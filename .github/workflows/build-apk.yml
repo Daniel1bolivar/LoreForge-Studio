@@ -37,24 +37,21 @@ jobs:
       - name: Dar permisos de ejecucion a Gradle Wrapper
         run: chmod +x android/gradlew
 
-      - name: Decodificar keystore persistente PKCS12
-        if: ${{ secrets.LOREFORGE_KEYSTORE_BASE64 != '' }}
+      - name: Decodificar keystore persistente PKCS12 y compilar APK
         env:
           LOREFORGE_KEYSTORE_BASE64: ${{ secrets.LOREFORGE_KEYSTORE_BASE64 }}
-        run: |
-          echo "$LOREFORGE_KEYSTORE_BASE64" | base64 -d > "${{ github.workspace }}/android/app/loreforge-release.p12"
-
-      - name: Compilar APK Firmado
-        env:
-          LOREFORGE_KEYSTORE_PATH: ${{ secrets.LOREFORGE_KEYSTORE_BASE64 != '' && format('{0}/android/app/loreforge-release.p12', github.workspace) || '' }}
           LOREFORGE_STORE_PASSWORD: ${{ secrets.LOREFORGE_STORE_PASSWORD }}
           LOREFORGE_KEY_ALIAS: ${{ secrets.LOREFORGE_KEY_ALIAS }}
           LOREFORGE_KEY_PASSWORD: ${{ secrets.LOREFORGE_KEY_PASSWORD }}
         run: |
-          cd android
-          if [ -n "$LOREFORGE_KEYSTORE_PATH" ]; then
+          if [ -n "$LOREFORGE_KEYSTORE_BASE64" ]; then
+            KS_FILE="${{ github.workspace }}/android/app/loreforge-release.p12"
+            echo "$LOREFORGE_KEYSTORE_BASE64" | base64 -d > "$KS_FILE"
+            export LOREFORGE_KEYSTORE_PATH="$KS_FILE"
+            cd android
             ./gradlew assembleRelease --no-daemon
           else
+            cd android
             ./gradlew assembleDebug --no-daemon
           fi
 
