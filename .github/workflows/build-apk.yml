@@ -46,8 +46,11 @@ jobs:
         run: |
           if [ -n "$LOREFORGE_KEYSTORE_BASE64" ]; then
             KS_FILE="${{ github.workspace }}/android/app/loreforge-release.p12"
-            echo "$LOREFORGE_KEYSTORE_BASE64" | base64 -d > "$KS_FILE"
+            printf '%s' "$LOREFORGE_KEYSTORE_BASE64" | tr -d '\r\n ' | base64 -d > "$KS_FILE"
             export LOREFORGE_KEYSTORE_PATH="$KS_FILE"
+            export LOREFORGE_STORE_PASSWORD="$(printf '%s' "$LOREFORGE_STORE_PASSWORD" | tr -d '\r\n')"
+            export LOREFORGE_KEY_ALIAS="$(printf '%s' "$LOREFORGE_KEY_ALIAS" | tr -d '\r\n')"
+            export LOREFORGE_KEY_PASSWORD="$(printf '%s' "$LOREFORGE_KEY_PASSWORD" | tr -d '\r\n')"
             cd android
             ./gradlew assembleRelease --no-daemon
           else
